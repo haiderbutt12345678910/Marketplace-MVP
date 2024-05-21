@@ -1,4 +1,4 @@
-# flutter_application_ebay_ecom
+# flutter_application_marketplace
 
 A new Flutter project.
 
