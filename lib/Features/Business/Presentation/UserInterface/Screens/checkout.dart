@@ -3,7 +3,10 @@ import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbu
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 
 class CheckOutScreen extends StatefulWidget {
+  const CheckOutScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _CheckOutScreenState createState() => _CheckOutScreenState();
 }
 

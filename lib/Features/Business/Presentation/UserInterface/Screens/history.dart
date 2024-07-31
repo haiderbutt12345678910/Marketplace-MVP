@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getrecentlyviewed_bloc.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getsaveditems_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/FeaturesCoreWidgets/cartnotification.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/HistoryWidets/favsellers.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/HistoryWidets/recent.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HistoryScreen extends StatelessWidget {
+import '../../../../../AppCores/CoreWidgets/appbartitle.dart';
+
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
+
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<GetsaveditemsBloc>(context).getSavedItems();
+    BlocProvider.of<GetRecentlyViewditemsBloc>(context).getRecentItems();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +32,7 @@ class HistoryScreen extends StatelessWidget {
           elevation: 0,
           actions: const [CartNotificationWidget()],
           centerTitle: true,
-          leading: Container(
-            margin: const EdgeInsets.only(left: 20),
-            child: Image.asset(AppAssetsUrl.brandLogo),
-          ),
-          title: const Text('Sellers Account'),
+          title: const AppBarTtile(),
           bottom: const TabBar(
             isScrollable: true, // Enable scrolling for many tabs
             tabs: [
@@ -33,17 +45,17 @@ class HistoryScreen extends StatelessWidget {
         body: TabBarView(
           children: [
             // Contents of each tab
-            Center(
+            const Center(
                 child: RecentScreen(
               id: 0,
             )),
-            Center(
+            const Center(
                 child: RecentScreen(
               id: 1,
             )),
             Center(
                 child: FavSellerWidet(
-              id: 0,
+              id: 3,
             )),
           ],
         ),

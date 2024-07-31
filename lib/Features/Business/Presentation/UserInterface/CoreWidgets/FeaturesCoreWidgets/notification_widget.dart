@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/Branding/appcolors.dart';
 
-class NotificationBadgeWidget extends StatelessWidget {
-  final VoidCallback function;
+class NotificationBadgeWidget extends StatefulWidget {
   final String notificationId;
+  final String count;
   const NotificationBadgeWidget(
-      {super.key, required this.function, required this.notificationId});
+      {super.key, required this.notificationId, required this.count});
+
+  @override
+  State<NotificationBadgeWidget> createState() =>
+      _NotificationBadgeWidgetState();
+}
+
+class _NotificationBadgeWidgetState extends State<NotificationBadgeWidget> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +32,7 @@ class NotificationBadgeWidget extends StatelessWidget {
       decoration: BoxDecoration(
           shape: BoxShape.circle, color: AppColors.notifcationColor),
       child: Text(
-        "0",
+        widget.count,
         style: Theme.of(context)
             .textTheme
             .titleSmall!

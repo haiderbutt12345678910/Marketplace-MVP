@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/Branding/appcolors.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appbartitle.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemDetailsEntity/itemdetail_entity.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/sellerstore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
@@ -69,7 +71,7 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
       resizeToAvoidBottomInset: true,
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Product Listing"),
+        title: const AppBarTtile(),
         centerTitle: true,
         leading: Container(
           margin: const EdgeInsets.only(left: 20),
@@ -304,6 +306,7 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
                                 isMine: true,
                                 images: [image as File, coverPhoto as File],
                                 storeName: _storeNametextEditingController.text,
+                                itemDetailEntity: const ItemDetailEntity(),
                               )),
                     );
                   } else {

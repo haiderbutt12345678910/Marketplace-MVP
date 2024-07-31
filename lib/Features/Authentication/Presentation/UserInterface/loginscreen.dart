@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/apptextformfeild.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/conststrings/AppStrings/authentication_strings.dart';
+import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/StateMangemnet/Bloc/login_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/CoreWidegts/accountcheck.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/CoreWidegts/divider.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/CoreWidegts/termsandconditions.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/forgetpasswordscreen.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getcities_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/landingscreen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../AppCores/BlocStates/blocstates.dart';
+import '../../../../AppCores/CoreWidgets/appbartitle.dart';
+import '../../../../AppCores/CoreWidgets/circularprogess.dart';
 
 class LogInScreen extends StatefulWidget {
   const LogInScreen({super.key});
@@ -26,6 +32,11 @@ class _LogInScreenState extends State<LogInScreen> {
       TextEditingController();
 
   final key = GlobalKey<FormState>();
+  @override
+  void initState() {
+    BlocProvider.of<GetcitiesBloc>(context).getCities();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -42,14 +53,33 @@ class _LogInScreenState extends State<LogInScreen> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          leading: Container(
-              margin: const EdgeInsets.only(left: 20),
-              child: Image.asset(AppAssetsUrl.brandLogo)),
-          title: Text(
-            AuthenticationStrings.btnlogInText,
-          ),
+          title: const AppBarTtile(),
         ),
-        body: Form(key: key, child: _logInWidget(context, size)));
+        body: Form(
+            key: key,
+            child: BlocConsumer<LogInCubit, BlocStates>(builder: (ctx, state) {
+              return Stack(
+                children: [
+                  _logInWidget(context, size),
+                  if (state is Loading) const ProgressCircularIndicatorCustom()
+                ],
+              );
+            }, listener: (ctx, state) {
+              if (state is Sucessfull) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LandingScreen()),
+                );
+              } else if (state is Failure) {
+                var snackBar = const SnackBar(
+                  duration: Duration(seconds: 2),
+                  content: Text("Failure"),
+                  backgroundColor: Colors.red,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              } else {}
+            })));
   }
 
   Widget _logInWidget(BuildContext context, Size size) {
@@ -129,9 +159,7 @@ class _LogInScreenState extends State<LogInScreen> {
         ElevatedButtonWidget(
           bgColor: Colors.greenAccent,
           buttonSize: null,
-          function: () {
-            key.currentState!.validate();
-          },
+          function: submit,
           buttonText: AuthenticationStrings.btnlogInText,
         ),
       ],
@@ -144,16 +172,21 @@ class _LogInScreenState extends State<LogInScreen> {
         ElevatedButtonWidget.withIcon(
           buttonSize: null,
           function: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LandingScreen()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => const LandingScreen()),
+            // );
           },
           buttonText: "Google",
           iconData: Icons.report_gmailerrorred,
         ),
       ],
     );
+  }
+
+  void submit() {
+    BlocProvider.of<LogInCubit>(context).logIn(
+        _textEditingControllerEmail.text, _textEditingControllerPassword.text);
   }
 
   validator() {

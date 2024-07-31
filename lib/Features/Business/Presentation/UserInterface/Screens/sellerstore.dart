@@ -1,22 +1,34 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/BlocStates/blocstates.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appbartitle.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemDetailsEntity/itemdetail_entity.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemsEntites/item_entity.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/dashboard.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../AppCores/Branding/Themes/elevatedbutton_themes.dart';
 import '../../../../../AppCores/CoreWidgets/pageheadings.dart';
 import '../../../../../productdummy.dart';
+import '../../StateMangement/Blocs/getitems_bloc.dart';
 import '../CoreWidgets/FeaturesCoreWidgets/productoverview_widget.dart';
 
 class SellerstoreScreen extends StatefulWidget {
   final String? storeName;
   final List<File>? images;
+  final ItemDetailEntity itemDetailEntity;
 
   final bool isMine;
   const SellerstoreScreen(
-      {super.key, required this.isMine, this.images, this.storeName});
+      {super.key,
+      required this.isMine,
+      this.images,
+      this.storeName,
+      required this.itemDetailEntity});
 
   @override
   State<SellerstoreScreen> createState() => _SellerstoreScreenState();
@@ -39,6 +51,10 @@ class _SellerstoreScreenState extends State<SellerstoreScreen> {
   Widget build(BuildContext context) {
     final size = ScreenSizeUtil.getScreenSized(context);
     return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const AppBarTtile(),
+        ),
         resizeToAvoidBottomInset: false,
         body: Column(
           children: [
@@ -61,11 +77,8 @@ class _SellerstoreScreenState extends State<SellerstoreScreen> {
             height: double.infinity,
             decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: widget.images != null
-                        ? FileImage(File(widget.images![1].path), scale: 2)
-                        : const NetworkImage(
-                                "https://i.pinimg.com/originals/36/31/6e/36316e646a53a0f71a0c46388ccc49a0.jpg")
-                            as ImageProvider,
+                    image: NetworkImage(AppAssetsUrl.fallbackImageUrl)
+                        as ImageProvider,
                     fit: BoxFit.contain)),
             child: Container(
               color: Colors.transparent.withOpacity(.7),
@@ -84,9 +97,9 @@ class _SellerstoreScreenState extends State<SellerstoreScreen> {
                                 "https://tse1.mm.bing.net/th?id=OIP.tfaSK3pwhLrecMjEcbcA9gHaHa&pid=Api&P=0&h=220")
                             as ImageProvider),
                 title: Text(
-                  widget.storeName == null
+                  widget.itemDetailEntity.user!.name == null
                       ? "Store Name"
-                      : widget.storeName as String,
+                      : widget.itemDetailEntity.user!.name as String,
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge!
@@ -312,26 +325,31 @@ class _SellerSearchProductsState extends State<SellerSearchProducts> {
   }
 
   Widget _products(BuildContext context, Size size, var list) {
-    return SizedBox(
-        width: double.infinity,
-        height:
-            size.height * .4, // Fixed height for GridView (adjust as needed)
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              // Adjust the max width of each item as needed
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-              childAspectRatio: .5),
-          itemCount: productList
-              .length, // itemCount should be the total number of items you have
-          itemBuilder: (context, int index) {
-            return ProductOverViewWidget(
-              size: size,
-              productDummy: productList[index],
-            );
-          },
-        ));
+    List<ItemEntity> list =
+        BlocProvider.of<GetitemsBloc>(context).getLocalList();
+    return BlocBuilder<GetitemsBloc, BlocStates>(builder: (ctx, state) {
+      return SizedBox(
+          width: double.infinity,
+          height:
+              size.width * .54, // Fixed height for GridView (adjust as needed)
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                // Adjust the max width of each item as needed
+                crossAxisSpacing: 0,
+                mainAxisSpacing: 0,
+                childAspectRatio: .5),
+            itemCount: productList
+                .length, // itemCount should be the total number of items you have
+            itemBuilder: (context, int index) {
+              return ProductOverViewWidget(
+                blocStates: state,
+                size: size,
+                itemEntity: list[index],
+              );
+            },
+          ));
+    });
   }
 
   List<ProductDummy> _getFilteredProducts() {

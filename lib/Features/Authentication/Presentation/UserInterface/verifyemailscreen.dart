@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/conststrings/AppStrings/authentication_strings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/CoreWidegts/termsandconditions.dart';
+
+import '../../../../AppCores/CoreWidgets/appbartitle.dart';
 
 class VerifyEmailScreen extends StatelessWidget {
   const VerifyEmailScreen({super.key});
@@ -11,12 +12,7 @@ class VerifyEmailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          leading: Container(
-              margin: const EdgeInsets.only(left: 20),
-              child: Image.asset(AppAssetsUrl.brandLogo)),
-        ),
+        appBar: AppBar(centerTitle: true, title: const AppBarTtile()),
         body: _verifyEmaiLWidget(context, size));
   }
 

@@ -1,58 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/BlocStates/blocstates.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/circularprogess.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemsEntites/item_entity.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/cart_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/FeaturesCoreWidgets/productoverview_widget.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/checkout.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../productdummy.dart';
+import '../../StateMangement/Blocs/getitems_bloc.dart';
 
-class CartScreen extends StatelessWidget {
-  CartScreen({super.key});
+class CartScreen extends StatefulWidget {
+  const CartScreen({super.key});
 
-  final product = [
-    {
-      "imageUrl":
-          "https://tse3.mm.bing.net/th?id=OIP.fFw-qnW_uMZqAtNAQDvghQHaIq&pid=Api&P=0&h=220",
-      "title":
-          "Big Floors DT40GRAY DuraGrid Outdoor Modular Interlocking Multi-Use Plastic Deck Tile, 40 Pack, Gray",
-      "description":
-          "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.LOREM IPSUM GENERATOR",
-      "price": '19.99',
-      "discountedPrice": '14.99',
-    },
-    {
-      "imageUrl":
-          "https://tse3.mm.bing.net/th?id=OIP.fFw-qnW_uMZqAtNAQDvghQHaIq&pid=Api&P=0&h=220",
-      "title":
-          "Big Floors DT40GRAY DuraGrid Outdoor Modular Interlocking Multi-Use Plastic Deck Tile, 40 Pack, Gray",
-      "description":
-          "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.LOREM IPSUM GENERATOR",
-      "price": '19.99',
-      "discountedPrice": '14.99',
-    },
-    {
-      "imageUrl":
-          "https://tse3.mm.bing.net/th?id=OIP.fFw-qnW_uMZqAtNAQDvghQHaIq&pid=Api&P=0&h=220",
-      "title":
-          "Big Floors DT40GRAY DuraGrid Outdoor Modular Interlocking Multi-Use Plastic Deck Tile, 40 Pack, Gray",
-      "description":
-          "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.LOREM IPSUM GENERATOR",
-      "price": '19.99',
-      "discountedPrice": '14.99',
-    },
-    {
-      "imageUrl":
-          "https://tse3.mm.bing.net/th?id=OIP.fFw-qnW_uMZqAtNAQDvghQHaIq&pid=Api&P=0&h=220",
-      "title":
-          "Big Floors DT40GRAY DuraGrid Outdoor Modular Interlocking Multi-Use Plastic Deck Tile, 40 Pack, Gray",
-      "description":
-          "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.LOREM IPSUM GENERATOR",
-      "price": '19.99',
-      "discountedPrice": '14.99',
-    },
-  ];
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  List<ItemEntity> list = [];
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<GetCartBloc>(context).getCat();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = ScreenSizeUtil.getScreenSized(context);
@@ -80,71 +55,88 @@ class CartScreen extends StatelessWidget {
     //     removePaddingBottom: true,
     //     removePaddingTop: true);+
 
-    return Column(
-      children: [
-        HeadingsWidet(h1: "Yout Cart", alignment: Alignment.centerLeft),
-        Column(
+    return BlocBuilder<GetCartBloc, BlocStates>(builder: (ctx, state) {
+      var cartList = BlocProvider.of<GetCartBloc>(context).getLocalList();
+
+      list = BlocProvider.of<GetitemsBloc>(context).getCartList(cartList);
+
+      if (state is Loading) {
+        return const ProgressCircularIndicatorCustom();
+      } else if (state is Sucessfull) {
+        return Column(
           children: [
-            for (int i = 0; i < 2; i++)
-              Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: size.height * .01),
-                    width: double.infinity,
-                    child: const Divider(
-                      color: Colors.white,
-                      thickness: 2,
-                    ),
-                  ),
-                  SizedBox(
-                    height: size.height * .05,
-                  ),
-                  HeadingsWidet(
-                      h1: "Seller  Virtualshopkeeper",
-                      alignment: Alignment.topLeft),
-                  _produtsOverView(context, size, i),
-                  SizedBox(
-                    height: size.height * .01,
-                  ),
-                  Row(
+            HeadingsWidet(h1: "Your Cart", alignment: Alignment.centerLeft),
+            Column(
+              children: [
+                for (int i = 0; i < list.length; i++)
+                  Column(
                     children: [
-                      Expanded(
-                          child: Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: size.height * .01),
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                "QTY 1",
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ))),
-                      Expanded(
-                          child: Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: size.height * .01),
-                              alignment: Alignment.topRight,
-                              child: TextButton(
-                                  onPressed: () {},
-                                  child: const Text("Remove")))),
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: size.height * .01),
+                        width: double.infinity,
+                        child: const Divider(
+                          color: Colors.white,
+                          thickness: 2,
+                        ),
+                      ),
+                      SizedBox(
+                        height: size.height * .05,
+                      ),
+                      HeadingsWidet(
+                          h1: "Seller Name", alignment: Alignment.topLeft),
+                      _produtsOverView(context, size, i),
+                      SizedBox(
+                        height: size.height * .01,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: Container(
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: size.height * .01),
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    cartList[i].quantity.toString(),
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ))),
+                          Expanded(
+                              child: Container(
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: size.height * .01),
+                                  alignment: Alignment.topRight,
+                                  child: TextButton(
+                                      onPressed: () {
+                                        BlocProvider.of<GetCartBloc>(context)
+                                            .removeCart(list[i].id as String);
+                                      },
+                                      child: const Text("Remove")))),
+                        ],
+                      )
                     ],
                   )
-                ],
-              )
+              ],
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: size.height * .01),
+              width: double.infinity,
+              child: const Divider(
+                color: Colors.white,
+                thickness: 2,
+              ),
+            ),
+            _total(context, size),
+            HeadingsWidet(
+                h1: "Frequently bought  together",
+                alignment: Alignment.topLeft),
+            __section4(context, size)
           ],
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: size.height * .01),
-          width: double.infinity,
-          child: const Divider(
-            color: Colors.white,
-            thickness: 2,
-          ),
-        ),
-        _total(context, size),
-        HeadingsWidet(
-            h1: "Frequently bought  together", alignment: Alignment.topLeft),
-        __section4(context, size)
-      ],
-    );
+        );
+      } else {
+        return const SizedBox();
+      }
+    });
   }
 
   _produtsOverView(BuildContext context, Size size, int i) {
@@ -162,7 +154,7 @@ class CartScreen extends StatelessWidget {
               child: SizedBox(
                 height: size.height * .11,
                 child: Image.network(
-                  product[i]["imageUrl"] as String,
+                  AppAssetsUrl.fallbackImageUrl,
                   width: double.infinity,
                 ),
               ),
@@ -179,7 +171,22 @@ class CartScreen extends StatelessWidget {
                 margin: EdgeInsets.symmetric(horizontal: size.height * .01),
                 alignment: Alignment.topLeft,
                 child: Text(
-                  product[i]["title"] as String,
+                  list[i].itemTitle as String,
+                  maxLines: 2, // Allow wrapping for long titles
+                  overflow: TextOverflow.ellipsis, // Truncate if too long
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+
+              SizedBox(height: size.height * .02),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: size.height * .01),
+                alignment: Alignment.topLeft,
+                child: Text(
+                  list[i].shortDescription as String,
                   maxLines: 2, // Allow wrapping for long titles
                   overflow: TextOverflow.ellipsis, // Truncate if too long
                   style: Theme.of(context)
@@ -195,12 +202,12 @@ class CartScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text("\$US ${product[i]["discountedPrice"] as String}",
+                    Text(" ${list[i].buyItNowPrice.toString()}",
                         style: Theme.of(context).textTheme.titleLarge),
                     SizedBox(
                       width: size.height * .01,
                     ),
-                    Text(" + \$${product[i]["price"] as String}",
+                    Text(" + \$${list[i].startBiddingPrice.toString()}",
                         style: Theme.of(context).textTheme.titleMedium!),
                   ],
                 ),
@@ -266,7 +273,7 @@ class CartScreen extends StatelessWidget {
                     margin: EdgeInsets.symmetric(horizontal: size.height * .01),
                     alignment: Alignment.topLeft,
                     child: Text(
-                      "Shippig to 44000",
+                      "",
                       style: Theme.of(context).textTheme.titleMedium,
                     ))),
             Expanded(
@@ -274,7 +281,7 @@ class CartScreen extends StatelessWidget {
                     margin: EdgeInsets.symmetric(horizontal: size.height * .01),
                     alignment: Alignment.topRight,
                     child: Text(
-                      "Us 35.99",
+                      "",
                       style: Theme.of(context).textTheme.titleLarge,
                     ))),
           ],
@@ -302,7 +309,7 @@ class CartScreen extends StatelessWidget {
                     margin: EdgeInsets.symmetric(horizontal: size.height * .01),
                     alignment: Alignment.topRight,
                     child: Text(
-                      "Us 70.99",
+                      list[0].buyItNowPrice.toString(),
                       style: Theme.of(context).textTheme.titleLarge,
                     ))),
           ],
@@ -330,24 +337,31 @@ class CartScreen extends StatelessWidget {
             right: 16.0,
             top: 16.0,
           ),
-          child: CheckOutScreen(),
+          child: const CheckOutScreen(),
         );
       },
     );
   }
 
   Widget __section4(BuildContext context, Size size) {
-    var list = productList;
-    return SizedBox(
-      width: double.infinity,
-      height: size.height * .7, // Fixed height for ListView
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: product.length, // Adjust number of items based on your data
-        itemBuilder: (context, index) {
-          return ProductOverViewWidget(size: size, productDummy: list[index]);
-        },
-      ),
-    );
+    List<ItemEntity> list =
+        BlocProvider.of<GetitemsBloc>(context).getLocalList();
+    return BlocBuilder<GetitemsBloc, BlocStates>(builder: (ctx, state) {
+      return SizedBox(
+        width: double.infinity,
+        height: size.height * .7, // Fixed height for ListView
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: list.length, // Adjust number of items based on your data
+          itemBuilder: (context, index) {
+            return ProductOverViewWidget(
+              size: size,
+              itemEntity: list[index],
+              blocStates: state,
+            );
+          },
+        ),
+      );
+    });
   }
 }

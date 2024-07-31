@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemsEntites/item_entity.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/FeaturesCoreWidgets/shimmer_widegt.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/productdetails_sceen.dart';
-import 'package:flutter_application_ebay_ecom/productdummy.dart';
 
+import '../../../../../../AppCores/BlocStates/blocstates.dart';
 import '../../../../../../AppCores/Branding/appcolors.dart';
-import 'shimmer_widegt.dart';
 import 'tags_widegt.dart';
 
 class ProductOverViewWidget extends StatefulWidget {
+  final BlocStates blocStates;
   final Size size;
-  final ProductDummy productDummy;
+  final ItemEntity itemEntity;
 
-  const ProductOverViewWidget(
-      {super.key, required this.size, required this.productDummy});
+  const ProductOverViewWidget({
+    super.key,
+    required this.size,
+    required this.blocStates,
+    required this.itemEntity,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -19,183 +27,236 @@ class ProductOverViewWidget extends StatefulWidget {
 }
 
 class _ProductOverViewWidgetState extends State<ProductOverViewWidget> {
-  bool _isLoading = true; // Track loading state
+  // Track loading state
 
   @override
   void initState() {
     super.initState();
     // Simulate loading delay, replace this with your actual loading logic
-    Future.delayed(const Duration(seconds: 3), () {
-      setState(() {
-        _isLoading = false; // Set loading state to false when data is loaded
-      });
-    });
   }
+
+  bool loadFailed = false;
 
   @override
   Widget build(BuildContext context) {
-    return _isLoading
-        ? ShimmerWidegt(size: widget.size) // Show shimmer when loading
-        : _buildActualWidget(); // Show actual widget when loaded
+    return widget.blocStates is Loading
+        ? ShimmerWidegt(size: widget.size)
+        : _buildActualWidget();
   }
 
   Widget _buildActualWidget() {
-    String productImageUrl = '';
-
     // Compare and store image URL for the product
-    for (var category in catlist) {
-      for (var subCat in category.subCategoryDummy as List<SubCategoryDummy>) {
-        if (subCat.subCatId == widget.productDummy.subCatId) {
-          productImageUrl = subCat.subCatImage as String;
-          break;
-        }
-      }
-    }
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: widget.size.height * 0.01,
-        vertical: widget.size.height * 0.01,
-      ),
-      width: widget.size.height * 0.4,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(15),
-          topRight: Radius.circular(15),
-        ),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ProductDetailsScreen(
-                      productDummy: widget.productDummy,
-                    )),
-          );
-        },
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: widget.size.height * .2,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(
-                    productImageUrl,
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              alignment: Alignment.topLeft,
-              child: SizedBox(
-                width: widget.size.height * .12,
-                height: widget.size.height * .05,
-                child: widget.productDummy.isSponsored as bool
-                    ? TagsWidget(
-                        fillColor: true,
-                        text: "Sponsored",
-                        color: AppColors.sponserd,
-                        size: widget.size,
-                      )
-                    : null,
-              ),
+
+    return widget.blocStates is Failure
+        ? SizedBox(
+            width: double.infinity,
+            child: HeadingsWidet.withH1Icon(
+              h1: "Failed To Load Data",
+              alignment: Alignment.center,
+              h2: "Tap here to retry",
+              iconData: Icons.refresh,
             ),
-            SizedBox(
-              height: widget.size.height * .01,
+          )
+        : Container(
+            margin: EdgeInsets.only(
+                left: widget.size.height * 0.01,
+                right: widget.size.height * 0.01,
+                top: widget.size.height * 0.01,
+                bottom: 0),
+            width: widget.size.height * 0.4,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: const BorderRadius.only(),
             ),
-            Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: widget.size.height * .04),
-              child: Text(
-                widget.productDummy.title as String,
-                maxLines: 2,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-              ),
-            ),
-            SizedBox(
-              height: widget.size.height * .01,
-            ),
-            Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: widget.size.height * .01),
-              child: Row(
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ProductDetailsScreen(
+                            id: widget.itemEntity.id as String,
+                          )),
+                );
+              },
+              child: Column(
                 children: [
-                  const Icon(
-                    Icons.star,
-                    color: Colors.amber,
-                    size: 10,
+                  Container(
+                    width: double.infinity,
+                    height: widget.size.height * .2,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        onError: (e, s) {
+                          setState(() {
+                            loadFailed = true;
+                          });
+                        },
+                        image: NetworkImage(
+                          loadFailed
+                              ? AppAssetsUrl.fallbackImageUrl
+                              : widget.itemEntity.itemImages![0].imageUrl
+                                  as String,
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    alignment: Alignment.topLeft,
+                    child: SizedBox(
+                      width: widget.size.height * .12,
+                      height: widget.size.height * .05,
+                      child: widget.itemEntity.shippingPrice == 0
+                          ? TagsWidget(
+                              fillColor: true,
+                              text: "Sponsored",
+                              color: AppColors.sponserd,
+                              size: widget.size,
+                            )
+                          : null,
+                    ),
                   ),
                   SizedBox(
-                    width: widget.size.height * .01,
+                    height: widget.size.height * .01,
                   ),
-                  Text(
-                    "${widget.productDummy.rating.toString()}/5 ${widget.productDummy.totalRating.toString()} . ${widget.productDummy.soldItems} sold",
-                    style: Theme.of(context).textTheme.titleSmall,
+                  Container(
+                    width: double.infinity,
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: widget.size.height * .008),
+                      child: Text(
+                        widget.itemEntity.itemTitle as String,
+                        maxLines: 2,
+                        style:
+                            Theme.of(context).textTheme.titleMedium!.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: widget.size.height * .01,
+                  ),
+                  const SizedBox(
+                    width: double.infinity,
+                    child: Divider(
+                      color: Colors.grey,
+                      thickness: 2,
+                      height: 2,
+                    ),
+                  ),
+                  SizedBox(
+                    height: widget.size.height * .015,
+                  ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //       horizontal: widget.size.height * .01),
+                  //   child: Row(
+                  //     children: [
+                  //       const Icon(
+                  //         Icons.star,
+                  //         color: Colors.amber,
+                  //         size: 10,
+                  //       ),
+                  //       SizedBox(
+                  //         width: widget.size.height * .01,
+                  //       ),
+                  //       Text(
+                  //         "3.5/5 (300)",
+                  //         style: Theme.of(context).textTheme.titleSmall,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: widget.size.height * .01,
+                  //   ),
+                  //   child: Row(
+                  //     children: [
+                  //       if (widget.itemEntity.shippingPrice == 0.0)
+                  //         TagsWidget(
+                  //           text: "Free Shipping",
+                  //           color: AppColors.freeShipping,
+                  //           size: widget.size,
+                  //         ),
+                  //       TagsWidget(
+                  //         text: "20 % off",
+                  //         color: AppColors.discountedsales,
+                  //         size: widget.size,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: widget.size.height * .008,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              text: 'Category: ',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                              children: <TextSpan>[
+                                TextSpan(
+                                    text: widget
+                                        .itemEntity
+                                        .categoryEntityItemDetail!
+                                        .categoryName as String,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            "RS. ${widget.itemEntity.buyItNowPrice.toString()}",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                    color: AppColors.discountedsales,
+                                    fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: widget.size.height * .008,
+                        vertical: widget.size.height * .008),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Type: ${widget.itemEntity.saleType.toString()}",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall!
+                                .copyWith(),
+                          ),
+                          Text(
+                              "Condition: ${widget.itemEntity.condition.toString()}",
+                              style: Theme.of(context).textTheme.titleSmall!)
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: widget.size.height * .01,
-              ),
-              child: Row(
-                children: [
-                  if (widget.productDummy.isFreeShipping as bool)
-                    TagsWidget(
-                      text: "Free Shipping",
-                      color: AppColors.freeShipping,
-                      size: widget.size,
-                    ),
-                  TagsWidget(
-                    text: "20 % off",
-                    color: AppColors.discountedsales,
-                    size: widget.size,
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              alignment: Alignment.bottomLeft,
-              padding: EdgeInsets.only(
-                top: widget.size.height * .01,
-                left: widget.size.height * .01,
-              ),
-              child: RichText(
-                text: TextSpan(
-                  text: ' Bid Price Rs. ',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall!
-                      .copyWith(fontWeight: FontWeight.bold),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: widget.productDummy.bidPrice,
-                      style: Theme.of(context).textTheme.titleLarge!,
-                    ),
-                    TextSpan(
-                      text: '  Ends On  ',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall!
-                          .copyWith(color: Colors.black),
-                    ),
-                    TextSpan(
-                      text: '${widget.productDummy.bidTime}',
-                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                          color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+          );
   }
 }

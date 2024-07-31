@@ -2,12 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/Branding/appcolors.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
+
+import '../../../../../AppCores/CoreWidgets/appbartitle.dart';
 
 class CreateListingScreen extends StatefulWidget {
   const CreateListingScreen({super.key});
@@ -67,12 +68,8 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       resizeToAvoidBottomInset: true,
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Product Listing"),
+        title: const AppBarTtile(),
         centerTitle: true,
-        leading: Container(
-          margin: const EdgeInsets.only(left: 20),
-          child: Image.asset(AppAssetsUrl.brandLogo),
-        ),
       ),
       body: SingleChildScrollView(
         child: SizedBox(

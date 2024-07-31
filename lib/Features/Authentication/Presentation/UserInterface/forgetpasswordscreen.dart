@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/apptextformfeild.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/conststrings/AppStrings/authentication_strings.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/CoreWidegts/termsandconditions.dart';
+
+import '../../../../AppCores/CoreWidgets/appbartitle.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
@@ -32,11 +33,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          centerTitle: true,
-          leading: Container(
-              margin: const EdgeInsets.only(left: 20),
-              child: Image.asset(AppAssetsUrl.brandLogo)),
-        ),
+            centerTitle: true,
+            title:const AppBarTtile()),
         body: Form(key: key, child: _forgetPasswordWidget(context, size)));
   }
 

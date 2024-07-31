@@ -1,63 +1,113 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/BlocStates/blocstates.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/circularprogess.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/SavedItems/saveitem_entity.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getrecentlyviewed_bloc.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getsaveditems_bloc.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/productdetails_sceen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../StateMangement/Blocs/getitems_bloc.dart';
 
 class RecentScreen extends StatelessWidget {
   final int id;
-  RecentScreen({super.key, required this.id});
-
-  final product = [
-    {
-      "imageUrl":
-          "https://tse3.mm.bing.net/th?id=OIP.fFw-qnW_uMZqAtNAQDvghQHaIq&pid=Api&P=0&h=220",
-      "title": "Sample Product Title",
-      "description":
-          "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.LOREM IPSUM GENERATOR",
-      "price": '19.99',
-      "discountedPrice": '14.99',
-    },
-    {
-      "imageUrl":
-          "https://tse3.mm.bing.net/th?id=OIP.fFw-qnW_uMZqAtNAQDvghQHaIq&pid=Api&P=0&h=220",
-      "title": "Sample Product Title",
-      "description":
-          "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.LOREM IPSUM GENERATOR",
-      "price": '19.99',
-      "discountedPrice": '14.99',
-    },
-    {
-      "imageUrl":
-          "https://tse3.mm.bing.net/th?id=OIP.fFw-qnW_uMZqAtNAQDvghQHaIq&pid=Api&P=0&h=220",
-      "title": "Sample Product Title",
-      "description":
-          "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.LOREM IPSUM GENERATOR",
-      "price": '19.99',
-      "discountedPrice": '14.99',
-    },
-    {
-      "imageUrl":
-          "https://tse1.mm.bing.net/th?id=OIP.tQJx_q96onpp5b9i2QtfDwHaMB&pid=Api&P=0&h=220",
-      "title": "Sample Product Title",
-      "description":
-          "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.LOREM IPSUM GENERATOR",
-      "price": '19.99',
-      "discountedPrice": '14.99',
-    },
-  ];
+  const RecentScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
     final size = ScreenSizeUtil.getScreenSized(context);
-    return SizedBox(
-        height: size.height, // Fixed height for ListView
-        child: Column(
-          children: [
-            for (int i = 0; i < product.length; i++)
-              _produtsOverView(context, size, i)
-          ],
-        ));
+    return id == 0
+        ? BlocBuilder<GetRecentlyViewditemsBloc, BlocStates>(
+            builder: (ctx, state) {
+            var savedListLocal =
+                BlocProvider.of<GetRecentlyViewditemsBloc>(context)
+                    .getSavedItemsLocal();
+
+            var list = BlocProvider.of<GetitemsBloc>(context)
+                .getLocalListRecentlyVied(savedListLocal);
+
+            if (state is Loading) {
+              return const ProgressCircularIndicatorCustom();
+            }
+            if (state is Sucessfull) {
+              return SizedBox(
+                height: size.height,
+                child: ListView.builder(
+                    itemCount: list.length,
+                    itemBuilder: (ctx, index) {
+                      return _produtsOverView(context, size, index);
+                    }),
+              );
+            } else {
+              return SizedBox(
+                height: size.height,
+                child: InkWell(
+                  onTap: () {
+                    BlocProvider.of<GetRecentlyViewditemsBloc>(context)
+                        .getRecentItems();
+                  },
+                  child: HeadingsWidet.withH1Icon(
+                    iconData: (Icons.refresh),
+                    h1: "Something Went Wrong",
+                    alignment: Alignment.center,
+                    h2: "Tap to retry",
+                  ),
+                ),
+              );
+            }
+          })
+        : BlocBuilder<GetsaveditemsBloc, BlocStates>(builder: (ctx, state) {
+            var savedListLocal = BlocProvider.of<GetsaveditemsBloc>(context)
+                .getSavedItemsLocal();
+
+            var list = BlocProvider.of<GetitemsBloc>(context)
+                .getLocalListRecentlyVied(savedListLocal);
+
+            if (state is Loading) {
+              return const ProgressCircularIndicatorCustom();
+            }
+            if (state is Sucessfull) {
+              return SizedBox(
+                height: size.height,
+                child: ListView.builder(
+                    itemCount: list.length,
+                    itemBuilder: (ctx, index) {
+                      return _produtsOverView(context, size, index);
+                    }),
+              );
+            } else {
+              return SizedBox(
+                height: size.height,
+                child: InkWell(
+                  onTap: () {
+                    BlocProvider.of<GetRecentlyViewditemsBloc>(context)
+                        .getRecentItems();
+                  },
+                  child: HeadingsWidet.withH1Icon(
+                    iconData: (Icons.refresh),
+                    h1: "Something Went Wrong",
+                    alignment: Alignment.center,
+                    h2: "Tap to retry",
+                  ),
+                ),
+              );
+            }
+          });
   }
 
   Widget _produtsOverView(BuildContext context, Size size, int i) {
+    List<SavedItemEntity> list = [];
+
+    if (id == 0) {
+      list = BlocProvider.of<GetRecentlyViewditemsBloc>(context)
+          .getSavedItemsLocal();
+    } else {
+      list = BlocProvider.of<GetsaveditemsBloc>(context).getSavedItemsLocal();
+    }
+
     return Column(
       children: [
         SizedBox(
@@ -65,11 +115,13 @@ class RecentScreen extends StatelessWidget {
         ),
         InkWell(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //       builder: (context) => const ProductDetailsScreen()),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ProductDetailsScreen(
+                        id: list[i].item.id as String,
+                      )),
+            );
           },
           child: Row(
             children: [
@@ -83,7 +135,7 @@ class RecentScreen extends StatelessWidget {
                   child: SizedBox(
                     height: size.height * .11,
                     child: Image.network(
-                      product[i]["imageUrl"] as String,
+                      AppAssetsUrl.fallbackImageUrl,
                       width: double.infinity,
                     ),
                   ),
@@ -100,7 +152,7 @@ class RecentScreen extends StatelessWidget {
                     margin: EdgeInsets.symmetric(horizontal: size.height * .01),
                     alignment: Alignment.topLeft,
                     child: Text(
-                      product[i]["title"] as String,
+                      list[i].item.itemTitle as String,
                       maxLines: 2, // Allow wrapping for long titles
                       overflow: TextOverflow.ellipsis, // Truncate if too long
                       style: Theme.of(context)
@@ -117,12 +169,12 @@ class RecentScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text("\$US ${product[i]["discountedPrice"] as String}",
+                        Text("pkr ${list[i].item.buyItNowPrice.toString()}",
                             style: Theme.of(context).textTheme.titleLarge),
                         SizedBox(
                           width: size.height * .01,
                         ),
-                        Text("Free Shipping",
+                        Text(list[i].item.shippingPrice.toString(),
                             style: Theme.of(context).textTheme.titleSmall!),
                       ],
                     ),

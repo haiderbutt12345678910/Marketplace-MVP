@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/BlocStates/blocstates.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/Branding/appcolors.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/circularprogess.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/user_entity.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getuser_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/history.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/masseges.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/profile_screen.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/settingsscreen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MyEbayOverView extends StatelessWidget {
   MyEbayOverView({super.key});
@@ -12,10 +18,6 @@ class MyEbayOverView extends StatelessWidget {
     [
       Icons.favorite_outlined,
       'Saved',
-    ],
-    [
-      Icons.refresh,
-      'Buy Again',
     ],
     [
       Icons.pan_tool_sharp,
@@ -51,68 +53,90 @@ class MyEbayOverView extends StatelessWidget {
   }
 
   Widget _profileSection(BuildContext context, Size size) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: size.height * .04,
-        ),
-        const CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage(
-                "https://tse1.mm.bing.net/th?id=OIP.ZWkglY4zTe4gYJzS-qAnqAHaHT&pid=Api")),
-        SizedBox(
-          height: size.height * .03,
-        ),
-        Row(
+    BlocProvider.of<GetUserBloc>(context).getUser();
+    return BlocBuilder<GetUserBloc, BlocStates>(builder: (ctx, state) {
+      UserEntity user = BlocProvider.of<GetUserBloc>(context).getUserLocal();
+      if (state is Loading) {
+        return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            width: size.width * .4,
+            height: size.height * .2,
+            child: const ProgressCircularIndicatorCustom(
+              bgColor: Colors.white,
+            ));
+      } else if (state is Sucessfull) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    "UserName101",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(fontWeight: FontWeight.bold),
+            SizedBox(
+              height: size.height * .04,
+            ),
+            CircleAvatar(
+                radius: 50, backgroundImage: NetworkImage(user.profileImage)),
+            SizedBox(
+              height: size.height * .03,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        user.name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: size.height * .01,
+                      ),
+                      Text(
+                        user.mobileNo,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    height: size.height * .01,
+                ),
+                Expanded(
+                    child: Container(
+                  alignment: Alignment.bottomRight,
+                  child: InkWell(
+                    onTap: () {
+                      //Naviget to profile
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileScreen(),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      Icons.arrow_forward_sharp,
+                      color: AppColors.iconsVaraintDarkTheme,
+                    ),
                   ),
-                  Text(
-                    "03241029381",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
+                ))
+              ],
+            ),
+            SizedBox(
+              height: size.height * .03,
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: Divider(
+                color: AppColors.dividerColor,
               ),
             ),
-            Expanded(
-                child: Container(
-              alignment: Alignment.bottomRight,
-              child: InkWell(
-                onTap: () {},
-                child: Icon(
-                  Icons.arrow_forward_sharp,
-                  color: AppColors.iconsVaraintDarkTheme,
-                ),
-              ),
-            ))
+            SizedBox(
+              height: size.height * .04,
+            )
           ],
-        ),
-        SizedBox(
-          height: size.height * .03,
-        ),
-        SizedBox(
-          width: double.infinity,
-          child: Divider(
-            color: AppColors.dividerColor,
-          ),
-        ),
-        SizedBox(
-          height: size.height * .04,
-        )
-      ],
-    );
+        );
+      } else {
+        return const SizedBox();
+      }
+    });
   }
 
   Widget _notificationSection(BuildContext context, Size size) {
@@ -240,6 +264,61 @@ class MyEbayOverView extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget memberships(BuildContext context, Size size) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SettingsScreen(),
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                InkWell(
+                  onTap: () {},
+                  child: SizedBox(
+                    height: size.height * .04,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                        child: Container(
+                      alignment: Alignment.topLeft,
+                      child: Icon(
+                        Icons.settings,
+                        color: AppColors.iconsDarkTheme,
+                      ),
+                    )),
+                    Expanded(
+                        flex: 4,
+                        child: Container(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            "Memberships",
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        )),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: size.height * .02,
+          )
+        ],
+      ),
     );
   }
 

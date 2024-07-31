@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appbartitle.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/FeaturesCoreWidgets/cartnotification.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/homescreen.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/myebayoverview.dart';
@@ -32,18 +32,10 @@ class LandingScreenState extends State<LandingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedIndex == 0
-            ? "Home"
-            : _selectedIndex == 1
-                ? "My eBay"
-                : "Seller"),
+        title: const AppBarTtile(),
         elevation: 0,
         actions: const [CartNotificationWidget()],
         centerTitle: true,
-        leading: Container(
-          margin: const EdgeInsets.only(left: 20),
-          child: Image.asset(AppAssetsUrl.brandLogo),
-        ),
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

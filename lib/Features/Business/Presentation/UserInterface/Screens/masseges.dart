@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/FeaturesCoreWidgets/cartnotification.dart';
+
+import '../../../../../AppCores/CoreWidgets/appbartitle.dart';
 
 class MassegedOverView extends StatelessWidget {
   MassegedOverView({super.key});
@@ -25,14 +26,10 @@ class MassegedOverView extends StatelessWidget {
     final size = ScreenSizeUtil.getScreenSized(context);
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Inbox"),
+          title: const AppBarTtile(),
           elevation: 0,
           actions: const [CartNotificationWidget()],
           centerTitle: true,
-          leading: Container(
-            margin: const EdgeInsets.only(left: 20),
-            child: Image.asset(AppAssetsUrl.brandLogo),
-          ),
         ),
         body: SizedBox(
             height: size.height,

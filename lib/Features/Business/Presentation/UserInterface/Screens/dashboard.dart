@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/DashBoardWidegts/listing_widget.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/DashBoardWidegts/order_widget.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/createlisting.dart';
+
+import '../../../../../AppCores/CoreWidgets/appbartitle.dart';
 
 class DashBoardScreen extends StatelessWidget {
   const DashBoardScreen({super.key});
@@ -24,11 +25,7 @@ class DashBoardScreen extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           centerTitle: true,
-          leading: Container(
-            margin: const EdgeInsets.only(left: 20),
-            child: Image.asset(AppAssetsUrl.brandLogo),
-          ),
-          title: const Text('Sellers Account'),
+          title: const AppBarTtile(),
           bottom: const TabBar(
             isScrollable: true, // Enable scrolling for many tabs
             tabs: [

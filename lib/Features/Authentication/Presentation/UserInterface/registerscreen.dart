@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/apptextformfeild.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
@@ -9,6 +8,8 @@ import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentati
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/CoreWidegts/termsandconditions.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/landingscreen.dart';
+
+import '../../../../AppCores/CoreWidgets/appbartitle.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -38,15 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          leading: Container(
-              margin: const EdgeInsets.only(left: 20),
-              child: Image.asset(AppAssetsUrl.brandLogo)),
-          title: Text(
-            AuthenticationStrings.btnregisterText,
-          ),
-        ),
+        appBar: AppBar(centerTitle: true, title: const AppBarTtile()),
         body: Form(key: key, child: _logInWidget(context, size)));
   }
 
@@ -106,17 +99,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           height: size.height * .01,
         ),
         Container(
-          margin: EdgeInsets.symmetric(horizontal: size.height * .02),
+          alignment: Alignment.bottomRight,
+          margin: EdgeInsets.symmetric(horizontal: size.height * .3),
           width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              TextButton(
-                  onPressed: () {},
-                  child: Text(AuthenticationStrings.btnForgotPassword)),
-              AccountCheckWidegt(isLoginPage: false, size: size),
-            ],
-          ),
+          child: AccountCheckWidegt(isLoginPage: false, size: size),
         ),
         ElevatedButtonWidget(
           buttonSize: null,

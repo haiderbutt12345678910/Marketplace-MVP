@@ -1,25 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/BlocStates/blocstates.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/Branding/Themes/elevatedbutton_themes.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/circularprogess.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemDetailsEntity/itemdetail_entity.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/cart_bloc.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getitems_bloc.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getsingleitem_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/FeaturesCoreWidgets/cartnotification.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/masseges.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/sellerstore.dart';
-import 'package:flutter_application_ebay_ecom/productdummy.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../AppCores/CoreWidgets/appbartitle.dart';
 import '../CoreWidgets/FeaturesCoreWidgets/productoverview_widget.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
-  final ProductDummy productDummy;
-  ProductDetailsScreen({super.key, required this.productDummy});
+class ProductDetailsScreen extends StatefulWidget {
+  final String id;
+  const ProductDetailsScreen({super.key, required this.id});
 
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final list = [
     ['49%', 'Positive Ratings'],
     ['79%', 'Ship On Time'],
     ['80%', 'Chat Response Rate']
   ];
+  @override
+  void initState() {
+    BlocProvider.of<GetsingleitemBloc>(context).getUser(widget.id);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,66 +43,112 @@ class ProductDetailsScreen extends StatelessWidget {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: Text(
-            productDummy.title as String,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          title: const AppBarTtile(),
           elevation: 0,
           actions: const [CartNotificationWidget()],
           centerTitle: true,
-          leading: Container(
-            margin: const EdgeInsets.only(left: 20),
-            child: Image.asset(AppAssetsUrl.brandLogo),
-          ),
         ),
-        body: Stack(
-          children: [
-            _widget(context, size),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Card(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: ElevatedButtonWidget(
-                              bgColor: Colors.greenAccent,
-                              buttonSize: null,
-                              function: () {},
-                              buttonText: "Add To Cart")),
-                      Expanded(
-                          child: ElevatedButtonWidget(
-                              bgColor: Colors.amber,
-                              buttonSize: null,
-                              function: () {},
-                              buttonText: "Buy Now")),
-                    ],
+        body: BlocBuilder<GetsingleitemBloc, BlocStates>(builder: (ctx, state) {
+          var itemdetail =
+              BlocProvider.of<GetsingleitemBloc>(context).getItemDetailsLocal();
+
+          if (state is Loading) {
+            return const ProgressCircularIndicatorCustom();
+          }
+          if (state is Sucessfull) {
+            return Stack(
+              children: [
+                _widget(context, size, itemdetail),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Card(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: ElevatedButtonWidget(
+                                  bgColor: Colors.greenAccent,
+                                  buttonSize: null,
+                                  function: () {
+                                    BlocProvider.of<GetCartBloc>(context)
+                                        .addToCart(itemdetail.id as String)
+                                        .then((onValue) {
+                                      var result =
+                                          BlocProvider.of<GetCartBloc>(context)
+                                              .addedState;
+                                      if (result == "S") {
+                                        var snackBar = const SnackBar(
+                                          duration: Duration(seconds: 2),
+                                          content: Text("Added to Cart"),
+                                          backgroundColor: Colors.green,
+                                        );
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+                                      } else {
+                                        var snackBar = const SnackBar(
+                                          duration: Duration(seconds: 2),
+                                          content: Text("Failed to add"),
+                                          backgroundColor: Colors.green,
+                                        );
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+                                      }
+                                    });
+                                  },
+                                  buttonText: "Add To Cart")),
+                          Expanded(
+                              child: ElevatedButtonWidget(
+                                  bgColor: Colors.amber,
+                                  buttonSize: null,
+                                  function: () {},
+                                  buttonText: "Buy Now")),
+                        ],
+                      ),
+                    ),
                   ),
+                )
+              ],
+            );
+          } else {
+            return SizedBox(
+              height: size.height,
+              child: InkWell(
+                onTap: () {
+                  BlocProvider.of<GetsingleitemBloc>(context)
+                      .getUser(widget.id);
+                },
+                child: HeadingsWidet.withH1Icon(
+                  iconData: (Icons.refresh),
+                  h1: "Something Went Wrong",
+                  alignment: Alignment.center,
+                  h2: "Tap to retry",
                 ),
               ),
-            )
-          ],
-        ));
+            );
+          }
+        }));
   }
 
-  Widget _widget(BuildContext context, Size size) {
+  Widget _widget(
+      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _productImages(context, size),
-          _prodctOverView(context, size),
-          _aboutThisItem(context, size),
-          _ratings(context, size),
-          _reviews(context, size),
-          _aboutSeller(context, size),
-          _moreProducts(context, size)
+          _productImages(context, size, itemDetailEntity),
+          _prodctOverView(context, size, itemDetailEntity),
+          _aboutThisItem(context, size, itemDetailEntity),
+          _ratings(context, size, itemDetailEntity),
+          _reviews(context, size, itemDetailEntity),
+          _aboutSeller(context, size, itemDetailEntity),
+          _moreProducts(context, size, itemDetailEntity)
         ],
       ),
     );
   }
 
-  Widget _prodctOverView(BuildContext context, Size size) {
+  Widget _prodctOverView(
+      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
     return Card(
       child: Column(
         children: [
@@ -94,7 +156,17 @@ class ProductDetailsScreen extends StatelessWidget {
             height: size.height * .01,
           ),
           HeadingsWidet(
-              h1: productDummy.title as String, alignment: Alignment.topCenter),
+              h1: itemDetailEntity.itemTitle as String,
+              h2: itemDetailEntity.shortDescription,
+              alignment: Alignment.topCenter),
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: size.width * .04, vertical: size.width * .03),
+            child: Text(
+              itemDetailEntity.conditionDescription as String,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: size.height * .01),
             child: Row(
@@ -116,18 +188,18 @@ class ProductDetailsScreen extends StatelessWidget {
                             .copyWith(fontWeight: FontWeight.bold),
                         children: <TextSpan>[
                           TextSpan(
-                            text: productDummy.bidPrice,
+                            text: itemDetailEntity.startBiddingPrice.toString(),
                             style: Theme.of(context).textTheme.titleLarge!,
                           ),
                           TextSpan(
-                            text: '  Ends On  ',
+                            text: '  Duration  ',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleSmall!
                                 .copyWith(color: Colors.black),
                           ),
                           TextSpan(
-                            text: '${productDummy.bidTime}',
+                            text: '${itemDetailEntity.auctionDuration}',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleSmall!
@@ -148,11 +220,11 @@ class ProductDetailsScreen extends StatelessWidget {
                 SizedBox(
                   width: size.height * .01,
                 ),
-                Text(
-                  "${productDummy.rating.toString()}/5 ${productDummy.totalRating.toString()} . ${productDummy.soldItems} sold",
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.bold, color: Colors.black),
-                ),
+                // Text(
+                //   "${productDummy.rating.toString()}/5 ${productDummy.totalRating.toString()} . ${productDummy.soldItems} sold",
+                //   style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                //       fontWeight: FontWeight.bold, color: Colors.black),
+                // ),
               ],
             ),
           ),
@@ -161,9 +233,9 @@ class ProductDetailsScreen extends StatelessWidget {
             child: ListTile(
               title: RichText(
                 text: TextSpan(
-                  text: productDummy.isFreeShipping as bool
+                  text: itemDetailEntity.shippingPrice == 0.0
                       ? "Free Shipping"
-                      : "Standad Shipping",
+                      : "Standad Shipping ${itemDetailEntity.shippingPrice}",
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge!
@@ -211,18 +283,21 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _productImages(BuildContext context, Size size) {
+  Widget _productImages(
+      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
     return Container(
       width: double.infinity,
       height: size.height * .4,
       decoration: BoxDecoration(
           image: DecorationImage(
-              image: NetworkImage(productDummy.images?[0] as String),
+              image:
+                  NetworkImage(itemDetailEntity.itemImages![0].image as String),
               fit: BoxFit.cover)),
     );
   }
 
-  Widget _aboutThisItem(BuildContext context, Size size) {
+  Widget _aboutThisItem(
+      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
     return Card(
       child: Column(
         children: [
@@ -230,7 +305,9 @@ class ProductDetailsScreen extends StatelessWidget {
           SizedBox(
             height: size.height * .01,
           ),
-          for (int i = 0; i < productDummy.specifications!.length; i++)
+          for (int i = 0;
+              i < itemDetailEntity.itemAdditionalInformation!.length;
+              i++)
             Container(
               alignment: Alignment.topLeft,
               child: Column(
@@ -243,7 +320,7 @@ class ProductDetailsScreen extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: size.height * .01),
                     child: Text(
-                      '${i + 1} ${productDummy.specifications![i]}',
+                      '${i + 1} ${itemDetailEntity.itemAdditionalInformation![i].value} ${itemDetailEntity.itemAdditionalInformation![i].title}',
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium!
@@ -258,7 +335,8 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _aboutSeller(BuildContext context, Size size) {
+  Widget _aboutSeller(
+      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
     return Card(
       child: SizedBox(
         width: double.infinity,
@@ -273,7 +351,7 @@ class ProductDetailsScreen extends StatelessWidget {
                   backgroundImage: NetworkImage(
                       "https://tse4.mm.bing.net/th?id=OIP.BwHcg0ki1TiNyU_ihIV-SgHaHa&pid=Api&P=0&h=220")),
               title: Text(
-                "Store Name",
+                itemDetailEntity.user!.name as String,
                 style: Theme.of(context).textTheme.titleLarge!.copyWith(),
               ),
               trailing: ElevatedButton.icon(
@@ -286,7 +364,7 @@ class ProductDetailsScreen extends StatelessWidget {
                   ),
                   onPressed: null,
                   label: Text(
-                    "939123",
+                    itemDetailEntity.user!.storeSlug as String,
                     style: Theme.of(context).textTheme.titleMedium,
                   )),
             ),
@@ -356,8 +434,9 @@ class ProductDetailsScreen extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      const SellerstoreScreen(isMine: false)));
+                                  builder: (context) => SellerstoreScreen(
+                                      isMine: false,
+                                      itemDetailEntity: itemDetailEntity)));
                         },
                         buttonText: "Visit Store"),
                   )),
@@ -390,7 +469,8 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _ratings(BuildContext context, Size size) {
+  Widget _ratings(
+      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
     return Card(
       child: Column(
         children: [
@@ -411,7 +491,7 @@ class ProductDetailsScreen extends StatelessWidget {
                   width: size.height * .01,
                 ),
                 Text(
-                  "${productDummy.rating.toString()}/5 ${productDummy.totalRating.toString()}",
+                  "3.5/5 (300)}",
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 SizedBox(
@@ -432,7 +512,7 @@ class ProductDetailsScreen extends StatelessWidget {
                             width: size.width * .04,
                           ),
                           Text(
-                            productDummy.rating.toString(),
+                            "3.5/5",
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium!
@@ -458,7 +538,7 @@ class ProductDetailsScreen extends StatelessWidget {
                             width: size.width * .04,
                           ),
                           Text(
-                            productDummy.rating.toString(),
+                            "300",
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium!
@@ -482,7 +562,8 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _reviews(BuildContext context, Size size) {
+  Widget _reviews(
+      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
     String rev =
         "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.";
     return Card(
@@ -533,31 +614,37 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _moreProducts(BuildContext context, Size size) {
-    var list = productList;
-    return Card(
-      child: Column(
-        children: [
-          HeadingsWidet(h1: "People Also View", alignment: Alignment.topLeft),
-          SizedBox(
-            height: size.height * .01,
-          ),
-          SizedBox(
-            height: size.height * .4, // Fixed height for ListView
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount:
-                  list.length, // Adjust number of items based on your data
-              itemBuilder: (context, index) {
-                // Replace with your actual product data
-
-                return ProductOverViewWidget(
-                    size: size, productDummy: list[index]);
-              },
+  Widget _moreProducts(
+      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
+    var list = BlocProvider.of<GetitemsBloc>(context).getLocalList();
+    return BlocBuilder<GetitemsBloc, BlocStates>(builder: (ctx, state) {
+      return Card(
+        child: Column(
+          children: [
+            HeadingsWidet(h1: "People Also View", alignment: Alignment.topLeft),
+            SizedBox(
+              height: size.height * .01,
             ),
-          )
-        ],
-      ),
-    );
+            SizedBox(
+              height: size.height * .4, // Fixed height for ListView
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount:
+                    list.length, // Adjust number of items based on your data
+                itemBuilder: (context, index) {
+                  // Replace with your actual product data
+
+                  return ProductOverViewWidget(
+                    size: size,
+                    itemEntity: list[index],
+                    blocStates: state,
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+      );
+    });
   }
 }

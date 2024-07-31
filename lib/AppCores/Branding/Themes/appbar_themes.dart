@@ -10,6 +10,6 @@ class AppappBarThemes {
         backgroundColor: Colors.greenAccent,
         titleTextStyle: Theme.of(context).textTheme.titleLarge,
         iconTheme: IconThemeData(
-            color: AppColors.iconsDarkTheme, size: size.height * .01));
+            color: AppColors.iconsDarkTheme, size: size.height * .025));
   }
 }
