@@ -54,7 +54,7 @@ class LandingScreenState extends State<LandingScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.tag),
-            label: 'Selling',
+            label: 'Sell An Item',
           ),
         ],
         currentIndex: _selectedIndex,

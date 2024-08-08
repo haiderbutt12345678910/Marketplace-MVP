@@ -26,10 +26,7 @@ class _ProductsOverviewState extends State<ProductsOverview> {
   String searchText = '';
   String selectedSubCat = '';
   String selectedSubCatId = '';
-  final List<String> _priceSorting = [
-    'High to Low',
-    'Low To High',
-  ];
+
   final List<String> _checkboxOptions = [
     'New Item',
     'Used Item',
@@ -110,8 +107,11 @@ class _ProductsOverviewState extends State<ProductsOverview> {
           });
         },
         decoration: InputDecoration(
-          suffixIcon:
-              IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list)),
+          suffixIcon: IconButton(
+              onPressed: () {
+                _filters(context, size);
+              },
+              icon: const Icon(Icons.filter_list)),
           fillColor: Colors.white.withOpacity(.9),
           filled: true,
           hintText: 'Search Products',
@@ -130,48 +130,88 @@ class _ProductsOverviewState extends State<ProductsOverview> {
     );
   }
 
-  Widget _fiters(BuildContext context, Size size) {
-    return Container(
-      margin: EdgeInsets.symmetric(
-          horizontal: size.width * .08, vertical: size.width * .01),
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: size.height * .02),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: size.width * .05),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: _checkboxOptions.map((option) {
-                return Column(
-                  children: [
-                    Text(option),
-                    Checkbox(
-                      value: _checkboxValues[option],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _checkboxValues[option] = value ?? false;
-                        });
-                      },
+  void _filters(BuildContext context, Size size) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              margin: EdgeInsets.symmetric(
+                  horizontal: size.width * .08, vertical: size.width * .01),
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HeadingsWidet(
+                      h1: "Advance Search", alignment: Alignment.center),
+                  SizedBox(height: size.height * .02),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: size.width * .05),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: _checkboxOptions.map((option) {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: size.height * .02,
+                            ),
+                            Row(
+                              children: [
+                                Theme(
+                                  data: ThemeData(
+                                    unselectedWidgetColor: Colors.orangeAccent,
+                                  ),
+                                  child: Checkbox(
+                                    value: _checkboxValues[option],
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        _checkboxValues[option] =
+                                            value ?? false;
+                                      });
+                                    },
+                                    activeColor: Colors.orangeAccent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  option,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }).toList(),
                     ),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _selcetCategories(BuildContext context, Size size) {
+    var catlist = BlocProvider.of<GetCategoriesBloc>(context).getLocalList();
+    List<String> list = [];
+    for (int i = 0; i < catlist.length; i++) {
+      list.add(catlist[i].categoryName as String);
+    }
+
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: size.width * 0),
       child: CustomDropdown<String>(
         hintText: 'Select category',
-        items: const ['Category 1', 'Category 2', 'Category 3'],
+        items: list,
         decoration: CustomDropdownDecoration(
           closedBorder: const Border(
             bottom: BorderSide(color: Colors.black, width: 1.0),
@@ -191,17 +231,49 @@ class _ProductsOverviewState extends State<ProductsOverview> {
   }
 
   Widget _widget(BuildContext context, Size size) {
-    var catList = BlocProvider.of<GetCategoriesBloc>(context).getLocalList();
-
-    // if (selectedSubCat.isEmpty && selectedSubCatId.isEmpty) {
-    //   selectedSubCat = catList[0].subCategoryName;
-    //   selectedSubCatId = catList[0].id;
-    // }
-
     return Column(
       children: [
         _searchWidget(context, size),
-        _selcetCategories(context, size)
+        _selcetCategories(context, size),
+        _product(context, size)
+      ],
+    );
+  }
+
+  Widget _product(BuildContext context, var size) {
+    var list = BlocProvider.of<GetitemsBloc>(context).getLocalList();
+    return Column(
+      children: [
+        SizedBox(
+          height: size.height * .02,
+        ),
+        HeadingsWidet(
+          h1: "Products Catalog",
+          alignment: Alignment.centerLeft,
+        ),
+        SizedBox(
+          height: size.height * .02,
+        ),
+        for (int i = 0; i < list.length - 1; i++)
+          SizedBox(
+            width: double.infinity,
+            child: Row(
+              children: [
+                Expanded(
+                    child: ProductOverViewWidget(
+                        size: size, blocStates: null, itemEntity: list[i])),
+                SizedBox(
+                  width: size.width * .01,
+                ),
+                Expanded(
+                    child: ProductOverViewWidget(
+                        size: size, blocStates: null, itemEntity: list[i + 1])),
+                SizedBox(
+                  width: size.width * .01,
+                ),
+              ],
+            ),
+          )
       ],
     );
   }

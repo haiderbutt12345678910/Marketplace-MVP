@@ -27,26 +27,50 @@ class MyEbayOverView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = ScreenSizeUtil.getScreenSized(context);
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: size.height * .05),
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.topLeft,
-                width: size.width * .6,
-                child: Column(
-                  children: [
-                    _profileSection(context, size),
-                    _notificationSection(context, size),
-                    _history(context, size),
-                    _settings(context, size)
-                  ],
-                ),
-              )
-            ],
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: null,
+          // Customize your app bar title
+          bottom: const PreferredSize(
+            preferredSize: Size.fromHeight(3.0),
+            child: TabBar(
+              tabs: [
+                Tab(text: "Selling"),
+                Tab(text: "Buyers"),
+                Tab(text: "Account"),
+              ],
+            ),
           ),
+        ),
+        body: TabBarView(
+          children: [
+            SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: size.height * .05),
+                child: Column(
+                  children: [_profileSection(context, size), SellingTab()],
+                ),
+              ),
+            ),
+            SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: size.height * .05),
+                child: Column(
+                  children: [_profileSection(context, size), ByersTab()],
+                ),
+              ),
+            ),
+            SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: size.height * .05),
+                child: Column(
+                  children: [_profileSection(context, size), AccountTab()],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -374,6 +398,225 @@ class MyEbayOverView extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class SellingTab extends StatelessWidget {
+  SellingTab({super.key});
+  final sellingList = [
+    ['SELL AN ITEM', Icons.add_shopping_cart],
+    ['MY ITEMS', Icons.list_alt],
+    ['SOLD ITEMS', Icons.check_box],
+    ['UNSOLD ITEMS', Icons.remove_shopping_cart],
+    ['ITEM BIDS', Icons.local_offer],
+    ['PAYMENTS', Icons.account_balance_wallet],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (int i = 0; i < sellingList.length; i++)
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistoryScreen(),
+                ),
+              );
+            },
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: size.height * .04,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Container(
+                        alignment: Alignment.topLeft,
+                        child: Icon(
+                          sellingList[i][1] as IconData,
+                          color: AppColors.iconsDarkTheme,
+                        ),
+                      )),
+                      Expanded(
+                          flex: 4,
+                          child: Container(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              sellingList[i][0] as String,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        SizedBox(
+          height: size.height * .03,
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: Divider(
+            color: AppColors.dividerColor,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ByersTab extends StatelessWidget {
+  ByersTab({super.key});
+  final buyersList = [
+    ['MY BIDS', Icons.gavel],
+    ['RECENTLY VIEWED', Icons.visibility],
+    ['SAVED', Icons.bookmark],
+    ['PURCHASE HISTORY', Icons.history],
+    ['MY RETURNS', Icons.assignment_return],
+    ['RATINGS AND REVIEWS', Icons.rate_review],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (int i = 0; i < buyersList.length; i++)
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistoryScreen(),
+                ),
+              );
+            },
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: size.height * .04,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Container(
+                        alignment: Alignment.topLeft,
+                        child: Icon(
+                          buyersList[i][1] as IconData,
+                          color: AppColors.iconsDarkTheme,
+                        ),
+                      )),
+                      Expanded(
+                          flex: 4,
+                          child: Container(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              buyersList[i][0] as String,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        SizedBox(
+          height: size.height * .03,
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: Divider(
+            color: AppColors.dividerColor,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class AccountTab extends StatelessWidget {
+  AccountTab({super.key});
+  final accountList = [
+    ['MESSAGES', Icons.message],
+    ['PROFILE', Icons.person],
+    ['IDENTITY VERIFICATION', Icons.verified_user],
+    ['SETTING', Icons.settings],
+    ['MEMBERSHIPS', Icons.card_membership],
+    ['CHANGE PASSWORD', Icons.lock],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (int i = 0; i < accountList.length; i++)
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistoryScreen(),
+                ),
+              );
+            },
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: size.height * .04,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Container(
+                        alignment: Alignment.topLeft,
+                        child: Icon(
+                          accountList[i][1] as IconData,
+                          color: AppColors.iconsDarkTheme,
+                        ),
+                      )),
+                      Expanded(
+                          flex: 4,
+                          child: Container(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              accountList[i][0] as String,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        SizedBox(
+          height: size.height * .03,
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: Divider(
+            color: AppColors.dividerColor,
+          ),
+        ),
+      ],
     );
   }
 }

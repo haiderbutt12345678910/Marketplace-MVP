@@ -8,7 +8,6 @@ import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentati
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/CoreWidegts/divider.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/CoreWidegts/termsandconditions.dart';
-import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/forgetpasswordscreen.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getcities_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/landingscreen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,7 +65,7 @@ class _LogInScreenState extends State<LogInScreen> {
               );
             }, listener: (ctx, state) {
               if (state is Sucessfull) {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const LandingScreen()),
@@ -145,11 +144,11 @@ class _LogInScreenState extends State<LogInScreen> {
             children: [
               TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ForgetPasswordScreen()),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //       builder: (context) => const ForgetPasswordScreen()),
+                    // );
                   },
                   child: Text(AuthenticationStrings.btnForgotPassword)),
               AccountCheckWidegt(isLoginPage: true, size: size),
@@ -191,7 +190,7 @@ class _LogInScreenState extends State<LogInScreen> {
 
   validator() {
     if (key.currentState!.validate()) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LandingScreen()),
       );

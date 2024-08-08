@@ -20,22 +20,29 @@ import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/Sta
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getsubcategories_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getuser_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/updateuser_bloc.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/landingscreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dependencyInjection.dart ' as di;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  final SharedPreferences sharedPreferences =
+      await SharedPreferences.getInstance();
+  final String? token = sharedPreferences.getString('token');
   await di.init();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
-  runApp(const MyApp());
+  runApp(MyApp(
+    tokken: token,
+  ));
 }
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String? tokken;
+  const MyApp({super.key, this.tokken});
 
   // This widget is the root of your application.
   @override
@@ -101,7 +108,7 @@ class MyApp extends StatelessWidget {
                     insets: const EdgeInsets.symmetric(horizontal: 4),
                   ))),
           title: 'Flutter Demo',
-          home: const LogInScreen()),
+          home: tokken == null ? const LogInScreen() : const LandingScreen()),
     );
   }
 }

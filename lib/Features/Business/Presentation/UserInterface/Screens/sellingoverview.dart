@@ -37,8 +37,8 @@ class SellingOverView extends StatelessWidget {
               margin: EdgeInsets.symmetric(horizontal: size.height * .05),
               width: double.infinity,
               child: HeadingsWidet(
-                  h1: "Create Store Today",
-                  h2: "You Can Create Your Own Store And Start Listing Products",
+                  h1: "Sell your item Today",
+                  h2: "You Can Start Listing Products Toady and raech global Audience",
                   alignment: Alignment.center),
             ),
             SizedBox(
@@ -55,47 +55,47 @@ class SellingOverView extends StatelessWidget {
                         MaterialPageRoute(
                             builder: (context) => const StoreSetupForm()));
                   },
-                  buttonText: "Create Store"),
+                  buttonText: "Sell An Item"),
             ),
             SizedBox(
               height: size.height * .02,
             ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: size.height * .05),
-              width: double.infinity,
-              child: HeadingsWidet(
-                  h1: "\$US 30.00",
-                  h2: "90 days total",
-                  alignment: Alignment.center),
-            ),
-            SizedBox(
-              height: size.height * .04,
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: size.height * .08),
-              width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  for (int i = 0; i < 3; i++)
-                    Column(
-                      children: [
-                        Text(
-                          list[i][0],
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        SizedBox(
-                          height: size.height * .01,
-                        ),
-                        Text(
-                          list[i][1],
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    )
-                ],
-              ),
-            ),
+            // Container(
+            //   margin: EdgeInsets.symmetric(horizontal: size.height * .05),
+            //   width: double.infinity,
+            //   child: HeadingsWidet(
+            //       h1: "\$US 30.00",
+            //       h2: "90 days total",
+            //       alignment: Alignment.center),
+            // ),
+            // SizedBox(
+            //   height: size.height * .04,
+            // ),
+            // Container(
+            //   margin: EdgeInsets.symmetric(horizontal: size.height * .08),
+            //   width: double.infinity,
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //     children: [
+            //       for (int i = 0; i < 3; i++)
+            //         Column(
+            //           children: [
+            //             Text(
+            //               list[i][0],
+            //               style: Theme.of(context).textTheme.bodyLarge,
+            //             ),
+            //             SizedBox(
+            //               height: size.height * .01,
+            //             ),
+            //             Text(
+            //               list[i][1],
+            //               style: Theme.of(context).textTheme.bodyMedium,
+            //             ),
+            //           ],
+            //         )
+            //     ],
+            //   ),
+            // ),
             SizedBox(
               height: size.height * .04,
             ),

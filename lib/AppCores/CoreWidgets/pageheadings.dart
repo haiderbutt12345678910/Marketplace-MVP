@@ -5,15 +5,16 @@ import 'package:flutter_application_ebay_ecom/AppCores/Branding/appcolors.dart';
 class HeadingsWidet extends StatelessWidget {
   final String h1;
   final String? h2;
+  Color? color;
   bool withRow = false;
   final Alignment alignment;
   IconData? iconData;
-  HeadingsWidet({
-    super.key,
-    required this.h1,
-    this.h2,
-    required this.alignment,
-  });
+  HeadingsWidet(
+      {super.key,
+      required this.h1,
+      this.h2,
+      required this.alignment,
+      this.color});
   HeadingsWidet.withH1Icon(
       {super.key,
       required this.h1,
@@ -94,7 +95,12 @@ class HeadingsWidet extends StatelessWidget {
             width: withRow ? null : double.infinity,
             child: Text(
               h1,
-              style: Theme.of(context).textTheme.headlineLarge,
+              style: color == null
+                  ? Theme.of(context).textTheme.headlineLarge
+                  : Theme.of(context)
+                      .textTheme
+                      .headlineLarge!
+                      .copyWith(color: color),
               textAlign: TextAlign.center,
             ),
           ),

@@ -427,8 +427,7 @@ class ApiDataSourceImpl extends Apidatasource {
         'https://emarket.deliverers.uk/api/remove-item-from-cart/$id';
 
     try {
-      final String? token =
-          prefs.getString('token'); // Ensure prefs is initialized
+      final String? token = prefs.getString('token');
 
       final response = await http.post(
         Uri.parse(itemsUrl),

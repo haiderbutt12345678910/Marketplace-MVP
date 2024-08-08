@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/BlocStates/blocstates.dart';
-import 'package:flutter_application_ebay_ecom/AppCores/Branding/Themes/elevatedbutton_themes.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/circularprogess.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
@@ -56,60 +55,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             return const ProgressCircularIndicatorCustom();
           }
           if (state is Sucessfull) {
-            return Stack(
-              children: [
-                _widget(context, size, itemdetail),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Card(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child: ElevatedButtonWidget(
-                                  bgColor: Colors.greenAccent,
-                                  buttonSize: null,
-                                  function: () {
-                                    BlocProvider.of<GetCartBloc>(context)
-                                        .addToCart(itemdetail.id as String)
-                                        .then((onValue) {
-                                      var result =
-                                          BlocProvider.of<GetCartBloc>(context)
-                                              .addedState;
-                                      if (result == "S") {
-                                        var snackBar = const SnackBar(
-                                          duration: Duration(seconds: 2),
-                                          content: Text("Added to Cart"),
-                                          backgroundColor: Colors.green,
-                                        );
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(snackBar);
-                                      } else {
-                                        var snackBar = const SnackBar(
-                                          duration: Duration(seconds: 2),
-                                          content: Text("Failed to add"),
-                                          backgroundColor: Colors.green,
-                                        );
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(snackBar);
-                                      }
-                                    });
-                                  },
-                                  buttonText: "Add To Cart")),
-                          Expanded(
-                              child: ElevatedButtonWidget(
-                                  bgColor: Colors.amber,
-                                  buttonSize: null,
-                                  function: () {},
-                                  buttonText: "Buy Now")),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            );
+            return _widget(context, size, itemdetail);
           } else {
             return SizedBox(
               height: size.height,
@@ -137,8 +83,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         children: [
           _productImages(context, size, itemDetailEntity),
           _prodctOverView(context, size, itemDetailEntity),
-          _aboutThisItem(context, size, itemDetailEntity),
-          _ratings(context, size, itemDetailEntity),
+          _btns(context, size),
+          _shortDes(context, size),
+          _additonalDetails(context, size),
           _reviews(context, size, itemDetailEntity),
           _aboutSeller(context, size, itemDetailEntity),
           _moreProducts(context, size, itemDetailEntity)
@@ -149,137 +96,154 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _prodctOverView(
       BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
-    return Card(
-      child: Column(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: size.width * .01),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            height: size.height * .01,
-          ),
-          HeadingsWidet(
-              h1: itemDetailEntity.itemTitle as String,
-              h2: itemDetailEntity.shortDescription,
-              alignment: Alignment.topCenter),
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: size.width * .04, vertical: size.width * .03),
-            child: Text(
-              itemDetailEntity.conditionDescription as String,
-              style: Theme.of(context).textTheme.titleMedium,
+          Expanded(
+            child: Container(
+              alignment: Alignment.topLeft,
+              child: Text(
+                itemDetailEntity.itemTitle as String,
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: Colors.orangeAccent, fontWeight: FontWeight.normal),
+              ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: size.height * .01),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    alignment: Alignment.bottomLeft,
-                    padding: EdgeInsets.only(
-                      top: size.height * .01,
-                      left: size.height * .01,
-                    ),
-                    child: RichText(
-                      text: TextSpan(
-                        text: ' Bid Price Rs. ',
+          Expanded(
+            child: Container(
+              alignment: Alignment.topRight,
+              child: Text(
+                'RS ${itemDetailEntity.buyItNowPrice.toString()}',
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    decoration: TextDecoration.underline,
+                    color: Colors.orangeAccent,
+                    fontWeight: FontWeight.normal),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _btns(BuildContext context, Size size) {
+    var itemdetail =
+        BlocProvider.of<GetsingleitemBloc>(context).getItemDetailsLocal();
+    return Container(
+      margin: EdgeInsets.symmetric(
+          horizontal: size.height * .001, vertical: size.height * .04),
+      width: double.infinity,
+      child: Row(
+        children: [
+          Expanded(
+              child: ElevatedButtonWidget(
+                  bgColor: Colors.blue,
+                  buttonSize: null,
+                  function: () {},
+                  buttonText: "Add to cart")),
+          if (itemdetail.saleType == "auction")
+            Expanded(
+                child: ElevatedButtonWidget(
+                    bgColor: Colors.amber,
+                    buttonSize: null,
+                    function: () {},
+                    buttonText: "Create Offer")),
+          Expanded(
+              child: ElevatedButtonWidget(
+                  bgColor: Colors.green,
+                  buttonSize: null,
+                  function: () {},
+                  buttonText: "Buy It Now")),
+        ],
+      ),
+    );
+  }
+
+  Widget _shortDes(BuildContext context, Size size) {
+    var itemdetail =
+        BlocProvider.of<GetsingleitemBloc>(context).getItemDetailsLocal();
+    return Column(
+      children: [
+        HeadingsWidet(
+          h1: "Short Description",
+          alignment: Alignment.centerLeft,
+          color: Colors.orangeAccent,
+        ),
+        SizedBox(
+          height: size.height * .01,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(itemdetail.shortDescription as String),
+        )
+      ],
+    );
+  }
+
+  Widget _additonalDetails(BuildContext context, Size size) {
+    var itemdetail =
+        BlocProvider.of<GetsingleitemBloc>(context).getItemDetailsLocal();
+    return Column(
+      children: [
+        SizedBox(
+          height: size.height * .006,
+        ),
+        HeadingsWidet(
+          h1: "Additional Details",
+          alignment: Alignment.centerLeft,
+          color: Colors.orangeAccent,
+        ),
+        SizedBox(
+          height: size.height * .01,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              for (int i = 0;
+                  i < itemdetail.itemAdditionalInformation!.length;
+                  i++)
+                Row(
+                  children: [
+                    Expanded(
+                        child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: size.height * .004,
+                          vertical: size.height * .004),
+                      color: Colors.grey,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        itemdetail.itemAdditionalInformation![i].title
+                            as String,
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium!
-                            .copyWith(fontWeight: FontWeight.bold),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: itemDetailEntity.startBiddingPrice.toString(),
-                            style: Theme.of(context).textTheme.titleLarge!,
-                          ),
-                          TextSpan(
-                            text: '  Duration  ',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(color: Colors.black),
-                          ),
-                          TextSpan(
-                            text: '${itemDetailEntity.auctionDuration}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                            .copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ),
-                ),
-                const Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 30,
-                ),
-                SizedBox(
-                  width: size.height * .01,
-                ),
-                // Text(
-                //   "${productDummy.rating.toString()}/5 ${productDummy.totalRating.toString()} . ${productDummy.soldItems} sold",
-                //   style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                //       fontWeight: FontWeight.bold, color: Colors.black),
-                // ),
-              ],
-            ),
-          ),
-          Card.filled(
-            color: Colors.white70,
-            child: ListTile(
-              title: RichText(
-                text: TextSpan(
-                  text: itemDetailEntity.shippingPrice == 0.0
-                      ? "Free Shipping"
-                      : "Standad Shipping ${itemDetailEntity.shippingPrice}",
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: "   Est. delivery 20 May- 27 May",
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium!
-                          .copyWith(color: Colors.black),
-                    ),
+                    )),
+                    Expanded(
+                        child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: size.height * .004,
+                          vertical: size.height * .004),
+                      alignment: Alignment.centerLeft,
+                      color: Colors.grey.withOpacity(.2),
+                      child: Text(
+                        itemdetail.itemAdditionalInformation![i].value
+                            as String,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ))
                   ],
-                ),
-              ),
-              leading: const Icon(
-                Icons.local_shipping_sharp,
-                color: Colors.black,
-              ),
-              trailing: const Icon(
-                Icons.warning,
-                color: Colors.grey,
-              ),
-            ),
+                )
+            ],
           ),
-          Card.filled(
-            color: Colors.white,
-            child: ListTile(
-              title: Text(
-                "Money Back Gurantee",
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              leading: const Icon(
-                Icons.refresh,
-                color: Colors.black,
-              ),
-              trailing: const Icon(
-                Icons.warning,
-                color: Colors.grey,
-              ),
-            ),
-          )
-        ],
-      ),
+        )
+      ],
     );
   }
 
@@ -296,119 +260,178 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _aboutThisItem(
-      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
-    return Card(
-      child: Column(
-        children: [
-          HeadingsWidet(h1: "About this item", alignment: Alignment.topLeft),
-          SizedBox(
-            height: size.height * .01,
-          ),
-          for (int i = 0;
-              i < itemDetailEntity.itemAdditionalInformation!.length;
-              i++)
-            Container(
-              alignment: Alignment.topLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: size.height * .02,
-                  ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: size.height * .01),
-                    child: Text(
-                      '${i + 1} ${itemDetailEntity.itemAdditionalInformation![i].value} ${itemDetailEntity.itemAdditionalInformation![i].title}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium!
-                          .copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  )
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
   Widget _aboutSeller(
       BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
+    var itemdetail =
+        BlocProvider.of<GetsingleitemBloc>(context).getItemDetailsLocal();
     return Card(
+      color: Colors.black,
       child: SizedBox(
         width: double.infinity,
         child: Column(
           children: [
-            HeadingsWidet(h1: "About Seller", alignment: Alignment.topLeft),
             SizedBox(
               height: size.height * .01,
             ),
             ListTile(
-              leading: const CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      "https://tse4.mm.bing.net/th?id=OIP.BwHcg0ki1TiNyU_ihIV-SgHaHa&pid=Api&P=0&h=220")),
+              leading: CircleAvatar(
+                  radius: 80,
+                  backgroundImage:
+                      NetworkImage(itemdetail.user!.profileImage as String)),
               title: Text(
                 itemDetailEntity.user!.name as String,
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge!
+                    .copyWith(color: Colors.white),
               ),
-              trailing: ElevatedButton.icon(
-                  style:
-                      ElevatedButtonsThemesData.darkBg(context, Colors.white12)
-                          .copyWith(),
-                  icon: const Icon(
-                    Icons.person,
-                    color: Colors.black,
-                  ),
-                  onPressed: null,
-                  label: Text(
-                    itemDetailEntity.user!.storeSlug as String,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  )),
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(
-                  horizontal: size.width * .1, vertical: size.width * .04),
-              width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              subtitle: Row(
                 children: [
-                  for (int i = 0; i < list.length; i++)
-                    Row(
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              list[i][0],
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            SizedBox(
-                              height: size.height * .01,
-                            ),
-                            Text(
-                              list[i][1],
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          width: size.width * .02,
-                        ),
-                        if (i != list.length - 1)
-                          const SizedBox(
-                            height: 30,
-                            child: VerticalDivider(
-                              thickness: 2,
-                              color: Colors.black,
-                            ),
+                  const Icon(
+                    size: 10,
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
+                  const SizedBox(
+                    width: 4,
+                  ),
+                  Text(
+                    "(3.9)",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium!
+                        .copyWith(color: Colors.white),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: size.height * .002,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: size.height * .003,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Row(
+                        children: [
+                          const Icon(
+                            Icons.person,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(
+                            width: size.width * .01,
+                          ),
+                          Text(
+                            "Identity Verified",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
                           )
-                      ],
-                    ),
+                        ],
+                      )),
+                      Expanded(
+                          child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          itemdetail.user!.identityVerifiedAt == null
+                              ? Icons.close
+                              : Icons.check,
+                          color: itemdetail.user!.identityVerifiedAt == null
+                              ? Colors.red
+                              : Colors.green,
+                        ),
+                      )),
+                    ],
+                  ),
+                  SizedBox(
+                    height: size.height * .01,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Row(
+                        children: [
+                          const Icon(
+                            Icons.phone,
+                            color: Colors.red,
+                          ),
+                          SizedBox(
+                            width: size.width * .01,
+                          ),
+                          Text(
+                            "Phone Verified",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      )),
+                      Expanded(
+                          child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          itemdetail.user!.identityVerifiedAt == null
+                              ? Icons.close
+                              : Icons.check,
+                          color: itemdetail.user!.identityVerifiedAt == null
+                              ? Colors.red
+                              : Colors.green,
+                        ),
+                      )),
+                    ],
+                  ),
+                  SizedBox(
+                    height: size.height * .01,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Row(
+                        children: [
+                          const Icon(
+                            Icons.email,
+                            color: Colors.green,
+                          ),
+                          SizedBox(
+                            width: size.width * .01,
+                          ),
+                          Text(
+                            "Email Verified",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      )),
+                      Expanded(
+                          child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          itemdetail.user!.emailVerifiedAt == null
+                              ? Icons.close
+                              : Icons.check,
+                          color: itemdetail.user!.emailVerifiedAt == null
+                              ? Colors.red
+                              : Colors.green,
+                        ),
+                      )),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -465,99 +488,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             )
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _ratings(
-      BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
-    return Card(
-      child: Column(
-        children: [
-          HeadingsWidet(h1: "Product Ratings", alignment: Alignment.topLeft),
-          SizedBox(
-            height: size.height * .01,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: size.height * .01),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 50,
-                ),
-                SizedBox(
-                  width: size.height * .01,
-                ),
-                Text(
-                  "3.5/5 (300)}",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                SizedBox(
-                  width: size.width * .2,
-                ),
-                Expanded(
-                    child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            "Quality",
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          SizedBox(
-                            width: size.width * .04,
-                          ),
-                          Text(
-                            "3.5/5",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 30,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: size.height * .01,
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "Price",
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          SizedBox(
-                            width: size.width * .04,
-                          ),
-                          Text(
-                            "300",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 30,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ))
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -621,12 +551,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       return Card(
         child: Column(
           children: [
-            HeadingsWidet(h1: "People Also View", alignment: Alignment.topLeft),
+            HeadingsWidet(h1: "Sponsered Items", alignment: Alignment.topLeft),
             SizedBox(
               height: size.height * .01,
             ),
             SizedBox(
-              height: size.height * .4, // Fixed height for ListView
+              height: size.height * .36, // Fixed height for ListView
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount:

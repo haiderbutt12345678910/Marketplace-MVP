@@ -10,14 +10,14 @@ import '../../../../../../AppCores/Branding/appcolors.dart';
 import 'tags_widegt.dart';
 
 class ProductOverViewWidget extends StatefulWidget {
-  final BlocStates blocStates;
+  final BlocStates? blocStates;
   final Size size;
   final ItemEntity itemEntity;
 
   const ProductOverViewWidget({
     super.key,
     required this.size,
-    required this.blocStates,
+    this.blocStates,
     required this.itemEntity,
   });
 
