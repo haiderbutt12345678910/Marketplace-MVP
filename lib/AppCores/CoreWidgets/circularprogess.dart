@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 class ProgressCircularIndicatorCustom extends StatelessWidget {
   final Color? bgColor;
-  const ProgressCircularIndicatorCustom({super.key, this.bgColor});
+  final Color? barColor;
+  const ProgressCircularIndicatorCustom(
+      {super.key, this.bgColor, this.barColor});
 
   @override
   Widget build(BuildContext context) {
@@ -11,9 +13,10 @@ class ProgressCircularIndicatorCustom extends StatelessWidget {
       alignment: Alignment.center,
       width: double.infinity,
       height: double.infinity,
-      child: const CircularProgressIndicator.adaptive(
-        backgroundColor: Colors.greenAccent,
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.greenAccent),
+      child: CircularProgressIndicator.adaptive(
+        backgroundColor: barColor ?? Colors.greenAccent,
+        valueColor:
+            AlwaysStoppedAnimation<Color>(barColor ?? Colors.greenAccent),
       ),
     );
   }

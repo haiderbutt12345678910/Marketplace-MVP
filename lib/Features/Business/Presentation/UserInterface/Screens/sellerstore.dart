@@ -8,6 +8,7 @@ import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbu
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemDetailsEntity/itemdetail_entity.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemsEntites/item_entity.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getsingleitem_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/dashboard.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -56,147 +57,224 @@ class _SellerstoreScreenState extends State<SellerstoreScreen> {
           title: const AppBarTtile(),
         ),
         resizeToAvoidBottomInset: false,
-        body: Column(
-          children: [
-            _cover(context, size),
-            SellerSearchProducts(
-              isMine: widget.isMine,
-            )
-          ],
+        body: SizedBox(
+          width: double.infinity,
+          height: size.height,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _aboutSeller(context, size),
+                SellerSearchProducts(
+                  isMine: widget.isMine,
+                )
+              ],
+            ),
+          ),
         ));
   }
 
-  Widget _cover(BuildContext context, Size size) {
-    return SizedBox(
-      height: size.height * .37,
-      width: double.infinity,
-      child: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: NetworkImage(AppAssetsUrl.fallbackImageUrl)
-                        as ImageProvider,
-                    fit: BoxFit.contain)),
-            child: Container(
-              color: Colors.transparent.withOpacity(.7),
+  Widget _aboutSeller(
+    BuildContext context,
+    Size size,
+  ) {
+    var itemdetail =
+        BlocProvider.of<GetsingleitemBloc>(context).getItemDetailsLocal();
+    return Card(
+      color: Colors.black,
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          children: [
+            SizedBox(
+              height: size.height * .01,
             ),
-          ),
-          Column(
-            children: [
-              SizedBox(
-                height: size.height * .01,
+            ListTile(
+              leading: CircleAvatar(
+                  radius: 80,
+                  backgroundImage:
+                      NetworkImage(itemdetail.user!.profileImage as String)),
+              title: Text(
+                itemdetail.user!.name as String,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge!
+                    .copyWith(color: Colors.white),
               ),
-              ListTile(
-                leading: CircleAvatar(
-                    backgroundImage: widget.images != null
-                        ? FileImage(File(widget.images![0].path))
-                        : const NetworkImage(
-                                "https://tse1.mm.bing.net/th?id=OIP.tfaSK3pwhLrecMjEcbcA9gHaHa&pid=Api&P=0&h=220")
-                            as ImageProvider),
-                title: Text(
-                  widget.itemDetailEntity.user!.name == null
-                      ? "Store Name"
-                      : widget.itemDetailEntity.user!.name as String,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge!
-                      .copyWith(color: Colors.white),
-                ),
-                trailing: ElevatedButton.icon(
-                    style: ElevatedButtonsThemesData.darkBg(
-                            context, Colors.white12)
-                        .copyWith(
-                            foregroundColor:
-                                const WidgetStatePropertyAll(Colors.white)),
-                    icon: const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                    ),
-                    onPressed: null,
-                    label: Text(
-                      widget.isMine ? "0" : "939123",
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium!
-                          .copyWith(color: Colors.white),
-                    )),
+              subtitle: Row(
+                children: [
+                  const Icon(
+                    size: 10,
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
+                  const SizedBox(
+                    width: 4,
+                  ),
+                  Text(
+                    "(3.9)",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium!
+                        .copyWith(color: Colors.white),
+                  )
+                ],
               ),
-              Container(
-                margin: EdgeInsets.symmetric(
-                    horizontal: size.width * .05, vertical: size.width * .04),
-                width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    for (int i = 0; i < list.length; i++)
-                      Row(
-                        children: [
-                          Column(
-                            children: [
-                              Text(
-                                widget.isMine ? list2[i][0] : list[i][0],
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(color: Colors.white),
-                              ),
-                              SizedBox(
-                                height: size.height * .01,
-                              ),
-                              Text(
-                                widget.isMine ? list2[i][1] : list[i][1],
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .copyWith(color: Colors.white),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            width: size.width * .02,
-                          ),
-                          if (i != list.length - 1)
-                            const SizedBox(
-                              height: 30,
-                              child: VerticalDivider(
-                                thickness: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                        ],
+            ),
+            SizedBox(
+              height: size.height * .002,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  SizedBox(
+                    height: size.height * .003,
+                  ),
+                  Expanded(
+                      child: Column(
+                    children: [
+                      const Icon(
+                        Icons.person,
+                        color: Colors.white,
                       ),
-                  ],
-                ),
+                      SizedBox(
+                        width: size.height * .01,
+                      ),
+                      Text(
+                        "Identity Verified",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal),
+                      )
+                    ],
+                  )),
+                  SizedBox(
+                    height: size.height * .01,
+                  ),
+                  Expanded(
+                      child: Column(
+                    children: [
+                      const Icon(
+                        Icons.phone,
+                        color: Colors.white,
+                      ),
+                      SizedBox(
+                        width: size.height * .01,
+                      ),
+                      Text(
+                        "Phone Verified",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal),
+                      )
+                    ],
+                  )),
+                  SizedBox(
+                    height: size.height * .01,
+                  ),
+                  Expanded(
+                      child: Column(
+                    children: [
+                      const Icon(
+                        Icons.email,
+                        color: Colors.white,
+                      ),
+                      SizedBox(
+                        width: size.height * .01,
+                      ),
+                      Text(
+                        "Email Verified",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal),
+                      )
+                    ],
+                  )),
+                ],
               ),
-              SizedBox(
-                height: size.height * .01,
+            ),
+            SizedBox(
+              height: size.height * .01,
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: size.width * .01),
+              width: double.infinity,
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: size.width * .01,
+                    ),
+                    child: ElevatedButtonWidget(
+                        bgColor: Colors.blue,
+                        buttonSize: null,
+                        function: () {
+                          //to store
+
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => SellerstoreScreen(
+                          //             isMine: false,
+                          //             itemDetailEntity: itemdetail)));
+                        },
+                        buttonText: "Contact"),
+                  )),
+                  SizedBox(
+                    width: size.width * .03,
+                  ),
+                  Expanded(
+                      child: Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: size.width * .01,
+                    ),
+                    child: ElevatedButtonWidget(
+                        bgColor: Colors.green,
+                        buttonSize: null,
+                        function: () {
+                          //to store
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => MassegedOverView()));
+                        },
+                        buttonText: "Follow"),
+                  )),
+                  SizedBox(
+                    width: size.width * .03,
+                  ),
+                  Expanded(
+                      child: Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: size.width * .01,
+                    ),
+                    child: ElevatedButtonWidget(
+                        bgColor: Colors.orange,
+                        buttonSize: null,
+                        function: () {
+                          //to store
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => MassegedOverView()));
+                        },
+                        buttonText: "Share"),
+                  )),
+                ],
               ),
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.symmetric(
-                  horizontal: size.width * .2,
-                ),
-                child: ElevatedButtonWidget(
-                  buttonSize: null,
-                  function: () {
-                    if (widget.isMine) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DashBoardScreen()),
-                      );
-                    }
-                  },
-                  buttonText: widget.isMine ? "View DashBoard" : "Follow",
-                  bgColor: Colors.orange,
-                ),
-              )
-            ],
-          ),
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -280,7 +358,10 @@ class _SellerSearchProductsState extends State<SellerSearchProducts> {
               return ListTile(
                 title: Text(
                   option,
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(fontWeight: FontWeight.normal),
                 ),
                 leading: Radio<String>(
                   activeColor: Colors.orange,
@@ -328,27 +409,32 @@ class _SellerSearchProductsState extends State<SellerSearchProducts> {
     List<ItemEntity> list =
         BlocProvider.of<GetitemsBloc>(context).getLocalList();
     return BlocBuilder<GetitemsBloc, BlocStates>(builder: (ctx, state) {
-      return SizedBox(
-          width: double.infinity,
-          height:
-              size.width * .54, // Fixed height for GridView (adjust as needed)
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                // Adjust the max width of each item as needed
-                crossAxisSpacing: 0,
-                mainAxisSpacing: 0,
-                childAspectRatio: .5),
-            itemCount: productList
-                .length, // itemCount should be the total number of items you have
-            itemBuilder: (context, int index) {
-              return ProductOverViewWidget(
-                blocStates: state,
-                size: size,
-                itemEntity: list[index],
-              );
-            },
-          ));
+      return Column(
+        children: [
+          for (int i = 0; i < list.length / 3; i++)
+            SizedBox(
+              width: double.infinity,
+              child: Row(
+                children: [
+                  Expanded(
+                      child: ProductOverViewWidget(
+                          size: size, blocStates: state, itemEntity: list[i])),
+                  SizedBox(
+                    width: size.width * .01,
+                  ),
+                  Expanded(
+                      child: ProductOverViewWidget(
+                          size: size,
+                          blocStates: state,
+                          itemEntity: list[i + 1])),
+                  SizedBox(
+                    width: size.width * .01,
+                  ),
+                ],
+              ),
+            )
+        ],
+      );
     });
   }
 

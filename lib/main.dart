@@ -10,6 +10,7 @@ import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsString
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/StateMangemnet/Bloc/login_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/loginscreen.dart';
+import 'package:flutter_application_ebay_ecom/Features/Authentication/Presentation/UserInterface/registerscreen.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/cart_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getcategories_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getcities_bloc.dart';
@@ -20,6 +21,7 @@ import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/Sta
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getsubcategories_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getuser_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/updateuser_bloc.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/storesetupform.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/landingscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dependencyInjection.dart ' as di;
@@ -108,7 +110,7 @@ class MyApp extends StatelessWidget {
                     insets: const EdgeInsets.symmetric(horizontal: 4),
                   ))),
           title: 'Flutter Demo',
-          home: tokken == null ? const LogInScreen() : const LandingScreen()),
+          home: tokken == null ? const LogInScreen() : const StoreSetupForm()),
     );
   }
 }

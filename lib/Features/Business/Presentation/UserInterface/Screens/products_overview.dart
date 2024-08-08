@@ -111,7 +111,7 @@ class _ProductsOverviewState extends State<ProductsOverview> {
               onPressed: () {
                 _filters(context, size);
               },
-              icon: const Icon(Icons.filter_list)),
+              icon: const Icon(Icons.more_vert)),
           fillColor: Colors.white.withOpacity(.9),
           filled: true,
           hintText: 'Search Products',
@@ -136,59 +136,47 @@ class _ProductsOverviewState extends State<ProductsOverview> {
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return Container(
-              margin: EdgeInsets.symmetric(
-                  horizontal: size.width * .08, vertical: size.width * .01),
-              width: double.infinity,
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  HeadingsWidet(
-                      h1: "Advance Search", alignment: Alignment.center),
+                  Text(
+                    "Advanced Search",
+                    style: Theme.of(context).textTheme.titleLarge,
+                    textAlign: TextAlign.center,
+                  ),
                   SizedBox(height: size.height * .02),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: size.width * .05),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: _checkboxOptions.map((option) {
-                        return Column(
-                          children: [
-                            SizedBox(
-                              height: size.height * .02,
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _checkboxOptions.map((option) {
+                      return ListTile(
+                        title: Text(
+                          option,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        leading: Theme(
+                          data: ThemeData(
+                            unselectedWidgetColor: Colors.orangeAccent,
+                          ),
+                          child: Checkbox(
+                            value: _checkboxValues[option],
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _checkboxValues[option] = value ?? false;
+                              });
+                            },
+                            activeColor: Colors.orangeAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
-                            Row(
-                              children: [
-                                Theme(
-                                  data: ThemeData(
-                                    unselectedWidgetColor: Colors.orangeAccent,
-                                  ),
-                                  child: Checkbox(
-                                    value: _checkboxValues[option],
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        _checkboxValues[option] =
-                                            value ?? false;
-                                      });
-                                    },
-                                    activeColor: Colors.orangeAccent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  option,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium!
-                                      .copyWith(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ],
               ),

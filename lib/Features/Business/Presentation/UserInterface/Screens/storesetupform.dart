@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/Branding/appcolors.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appbartitle.dart';
@@ -8,7 +11,10 @@ import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbu
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Domain/Entities/ItemDetailsEntity/itemdetail_entity.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getcategories_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/sellerstore.dart';
+import 'package:flutter_application_ebay_ecom/productdummy.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
 
@@ -20,20 +26,29 @@ class StoreSetupForm extends StatefulWidget {
 }
 
 class _StoreSetupFormState extends State<StoreSetupForm> {
-  final TextEditingController _storeNametextEditingController =
-      TextEditingController();
-  final MultiSelectController _categoriestextEditingController =
-      MultiSelectController();
+  final TextEditingController _itemDetailsController = TextEditingController();
+  final SingleSelectController<String?> _conditionController =
+      SingleSelectController(null);
+  final SingleSelectController<String?> _itemCategoryController =
+      SingleSelectController(null);
 
-  final MultiSelectController _colortxtEditingController =
-      MultiSelectController();
-  final MultiSelectController _sizetxtEditingController =
-      MultiSelectController();
-  final MultiSelectController _condtiontxtEditingController =
-      MultiSelectController();
+  final SingleSelectController<String?> _itemSubCategoryController =
+      SingleSelectController(null);
+
+  final SingleSelectController<String?> _itemSaleTypeController =
+      SingleSelectController(null);
+
+  final SingleSelectController<String?> _auctionDurationController =
+      SingleSelectController(null);
+  final SingleSelectController<String?> _shippingDurationConroller =
+      SingleSelectController(null);
 
   final TextEditingController _descriptiontextEditingController =
       TextEditingController();
+
+  final TextEditingController _startBidPrcie = TextEditingController(text: "0");
+  final TextEditingController _buyItNowPrice = TextEditingController(text: "0");
+  final TextEditingController _shippingPrice = TextEditingController(text: "0");
 
   final TextEditingController _pricetextEditingController =
       TextEditingController();
@@ -45,24 +60,29 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
   final PageController _pageController = PageController();
   File? image;
   File? coverPhoto;
+  int currentIndex = 0;
 
   @override
   void dispose() {
-    _colortxtEditingController.dispose();
-    _sizetxtEditingController.dispose();
-    _condtiontxtEditingController.dispose();
-    _categoriestextEditingController.dispose();
+    _conditionController.dispose();
+    _itemCategoryController.dispose();
+    _itemSubCategoryController.dispose();
+    _itemSaleTypeController.dispose();
+    _auctionDurationController.dispose();
+    _shippingDurationConroller.dispose();
+
     _pricetextEditingController.dispose();
     _discounttextEditingController.dispose();
     _shippingCostEditingController.dispose();
     _pageController.dispose();
     _descriptiontextEditingController.dispose();
-    _storeNametextEditingController.dispose();
+    _itemDetailsController.dispose();
     super.dispose();
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>(); // Create a GlobalKey
+  final List<String> list = ["Step 1", "Step 2", "Step 3", "Finished"];
 
   @override
   Widget build(BuildContext context) {
@@ -81,13 +101,40 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
       body: SingleChildScrollView(
         child: SizedBox(
           height: size.height,
-          child: PageView(
-            controller: _pageController,
+          child: Column(
             children: [
-              _storeName(context, size),
-              _cities(context, size),
-              _logo(context, size),
-              _coverPhoto(context, size),
+              SizedBox(
+                height: size.height * .01,
+              ),
+              HeadingsWidet(
+                h1: "Sell Items",
+                alignment: Alignment.center,
+                h2: "Fill out the form to start selling",
+              ),
+              SizedBox(
+                height: size.height * .01,
+              ),
+              steps(context, size),
+              Expanded(
+                child: SizedBox(
+                  child: PageView(
+                    onPageChanged: (index) {
+                      setState(() {
+                        currentIndex = index;
+                      });
+                    },
+                    controller: _pageController,
+                    children: [
+                      _itemInfo(context, size),
+                      _pricing(context, size),
+                      _coverPhoto(context, size),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: size.height * .01,
+              ),
             ],
           ),
         ),
@@ -95,26 +142,248 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
     );
   }
 
-  Widget _storeName(BuildContext context, Size size) {
+  Widget steps(BuildContext context, Size size) {
+    return SizedBox(
+      width: size.height,
+      child: Row(
+        children: [
+          for (int i = 0; i < list.length; i++)
+            Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(
+                    vertical: size.height * .01, horizontal: size.height * .01),
+                color: currentIndex == i
+                    ? Colors.yellow
+                    : Colors.grey.withOpacity(.6),
+                child: Text(
+                  list[i],
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(color: Colors.white),
+                ),
+              ),
+            )
+        ],
+      ),
+    );
+  }
+
+  Widget _dropdowns(BuildContext context, Size size, List<String> list,
+      String hint, SingleSelectController<String?>? controller) {
+    return Column(
+      children: [
+        Container(
+            width: double.infinity,
+            alignment: Alignment.topLeft,
+            child: Text(
+              hint,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(fontWeight: FontWeight.bold),
+            )),
+        const SizedBox(
+          height: 8,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: size.width * 0,
+          ),
+          child: CustomDropdown<String>(
+            controller: controller,
+            hintText: hint,
+            items: list,
+            decoration: CustomDropdownDecoration(
+              closedBorder: const Border(
+                bottom: BorderSide(color: Colors.black, width: 1.0),
+                top: BorderSide(color: Colors.black, width: 1.0),
+                right: BorderSide(color: Colors.black, width: 1.0),
+                left: BorderSide(color: Colors.black, width: 1.0),
+              ),
+              expandedBorder: const Border(
+                bottom: BorderSide(color: Colors.black, width: 1.0),
+                top: BorderSide(color: Colors.black, width: 1.0),
+                right: BorderSide(color: Colors.black, width: 1.0),
+                left: BorderSide(color: Colors.black, width: 1.0),
+              ),
+              closedBorderRadius: BorderRadius.zero,
+              expandedBorderRadius: BorderRadius.zero,
+              hintStyle: Theme.of(context).textTheme.titleMedium,
+            ),
+            onChanged: (value) {},
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _pricing(BuildContext context, Size size) {
+    String days = "days";
     return SizedBox(
       height: size.height,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          HeadingsWidet(h1: "Pricing", alignment: Alignment.center),
           Container(
             width: double.infinity,
             alignment: Alignment.center,
-            margin: EdgeInsets.symmetric(vertical: size.height * .1),
+            margin: EdgeInsets.symmetric(vertical: size.height * .02),
             child: Column(
               children: [
                 SizedBox(
-                  height: size.height * .1,
+                  height: size.height * .04,
                 ),
-                HeadingsWidet(
-                    h1: "Enrter Store Name",
-                    h2: "The store name  should reflects your selling point",
-                    alignment: Alignment.center),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.symmetric(
+                      horizontal: size.height * .03,
+                    ),
+                    child: _textFeild(_startBidPrcie, "Enter Price", 100,
+                        TextInputType.number, "Start Bid Price")),
+              ),
+              SizedBox(
+                width: size.width * .01,
+              ),
+              Expanded(
+                child: Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.symmetric(
+                      horizontal: size.height * .03,
+                    ),
+                    child: _textFeild(_buyItNowPrice, "Enter Price", 100,
+                        TextInputType.number, "Buy Now Price")),
+              ),
+              SizedBox(
+                width: size.width * .01,
+              ),
+              Expanded(
+                child: Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.symmetric(
+                      horizontal: size.height * .03,
+                    ),
+                    child: _textFeild(_shippingPrice, "Enter Price", 100,
+                        TextInputType.number, "Shipping Price")),
+              ),
+            ],
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(
+                horizontal: size.height * .03, vertical: size.height * .02),
+            width: size.width,
+            child: Row(
+              children: [
+                Expanded(
+                    child: _dropdowns(
+                        context,
+                        size,
+                        ["3$days", "7$days", "10$days", "15$days"],
+                        "Auction Duration",
+                        _auctionDurationController)),
+                SizedBox(
+                  width: size.width * .02,
+                ),
+                Expanded(
+                    child: _dropdowns(
+                        context,
+                        size,
+                        ["3$days", "7$days", "10$days", "15$days"],
+                        "shipping Duration",
+                        _shippingDurationConroller)),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: size.width * .05),
+            width: double.infinity,
+            child: Row(
+              children: [
+                if (currentIndex != 0)
+                  Expanded(
+                      child: Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: size.width * .01,
+                    ),
+                    child: ElevatedButtonWidget(
+                        bgColor: Colors.yellow,
+                        buttonSize: null,
+                        function: () {
+                          //to store
+                          _toPreviousPage();
+                        },
+                        buttonText: "Previous"),
+                  )),
+                SizedBox(
+                  width: size.width * .03,
+                ),
+                Expanded(
+                    child: Container(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: size.width * .01,
+                  ),
+                  child: ElevatedButtonWidget(
+                      bgColor: Colors.yellowAccent,
+                      buttonSize: null,
+                      function: () {
+                        if (_itemDetailsController.text.isNotEmpty) {
+                          _toNextPage();
+                        } else {
+                          showMySnackBar(
+                              context, "Store Name can not be empty");
+                        }
+                      },
+                      buttonText: "Next"),
+                )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemInfo(BuildContext context, Size size) {
+    var getCategories =
+        BlocProvider.of<GetCategoriesBloc>(context).getLocalList();
+    var getSubCategories =
+        BlocProvider.of<GetCategoriesBloc>(context).getLocalList();
+
+    List<String> catList = [];
+    for (int i = 0; i < getCategories.length; i++) {
+      catList.add(getCategories[i].categoryName as String);
+    }
+
+    List<String> subcatlist = [];
+    for (int i = 0; i < getSubCategories.length; i++) {
+      subcatlist.add(getSubCategories[i].categoryName as String);
+    }
+
+    return SizedBox(
+      height: size.height,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HeadingsWidet(h1: "Item Information", alignment: Alignment.center),
+          Container(
+            width: double.infinity,
+            alignment: Alignment.center,
+            margin: EdgeInsets.symmetric(vertical: size.height * .02),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: size.height * .04,
+                ),
               ],
             ),
           ),
@@ -123,26 +392,87 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
               margin: EdgeInsets.symmetric(
                 horizontal: size.height * .03,
               ),
-              child: _textFeild(
-                _storeNametextEditingController,
-                "Enter Store Name",
-                100,
-                TextInputType.emailAddress,
-              )),
+              child: _textFeild(_itemDetailsController, "Shoes, Stone ,Bage",
+                  100, TextInputType.emailAddress, "Item Title (*)")),
           Container(
+            margin: EdgeInsets.symmetric(
+                horizontal: size.height * .03, vertical: size.height * .02),
+            width: size.width,
+            child: Row(
+              children: [
+                Expanded(
+                    child: _dropdowns(context, size, catList, "Item Catergory",
+                        _itemCategoryController)),
+                SizedBox(
+                  width: size.width * .02,
+                ),
+                Expanded(
+                    child: _dropdowns(context, size, catList,
+                        "Item Sub Catergory", _itemSubCategoryController)),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(
+                horizontal: size.height * .03, vertical: size.height * .02),
+            width: size.width,
+            child: Row(
+              children: [
+                Expanded(
+                    child: _dropdowns(context, size, ["New,Used", "Open Box"],
+                        "Condtion", _conditionController)),
+                SizedBox(
+                  width: size.width * .02,
+                ),
+                Expanded(
+                    child: _dropdowns(context, size, ["Buy It Now", "auction"],
+                        "Sale Type", _itemSaleTypeController)),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: size.width * .05),
             width: double.infinity,
-            margin: EdgeInsets.symmetric(horizontal: size.height * .01),
-            child: ElevatedButtonWidget(
-                bgColor: Colors.orangeAccent,
-                buttonSize: null,
-                function: () {
-                  if (_storeNametextEditingController.text.isNotEmpty) {
-                    _toNextPage();
-                  } else {
-                    showMySnackBar(context, "Store Name can not be empty");
-                  }
-                },
-                buttonText: "Proceed"),
+            child: Row(
+              children: [
+                if (currentIndex != 0)
+                  Expanded(
+                      child: Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: size.width * .01,
+                    ),
+                    child: ElevatedButtonWidget(
+                        bgColor: Colors.yellow,
+                        buttonSize: null,
+                        function: () {
+                          //to store
+                          _toPreviousPage();
+                        },
+                        buttonText: "Previous"),
+                  )),
+                SizedBox(
+                  width: size.width * .03,
+                ),
+                Expanded(
+                    child: Container(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: size.width * .01,
+                  ),
+                  child: ElevatedButtonWidget(
+                      bgColor: Colors.yellowAccent,
+                      buttonSize: null,
+                      function: () {
+                        if (_itemDetailsController.text.isNotEmpty) {
+                          _toNextPage();
+                        } else {
+                          showMySnackBar(
+                              context, "Store Name can not be empty");
+                        }
+                      },
+                      buttonText: "Next"),
+                )),
+              ],
+            ),
           ),
         ],
       ),
@@ -150,18 +480,35 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
   }
 
   Widget _textFeild(TextEditingController textEditingController, String hint,
-      int maxLenght, TextInputType textInputType) {
-    return TextField(
-      cursorHeight: 30,
-      cursorColor: AppColors.cursorColor,
-      textAlign: TextAlign.left,
-      keyboardType: textInputType,
-      controller: textEditingController,
-      decoration: InputDecoration(
-        counterText: maxLenght.toString(),
-        hintText: hint,
-      ),
-      maxLength: maxLenght,
+      int maxLenght, TextInputType textInputType, String label) {
+    return Column(
+      children: [
+        Container(
+            width: double.infinity,
+            alignment: Alignment.topLeft,
+            child: Text(
+              label,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(fontWeight: FontWeight.bold),
+            )),
+        const SizedBox(
+          height: 8,
+        ),
+        TextField(
+          cursorHeight: 30,
+          cursorColor: AppColors.cursorColor,
+          textAlign: TextAlign.left,
+          keyboardType: textInputType,
+          controller: textEditingController,
+          decoration: InputDecoration(
+            counterText: maxLenght.toString(),
+            hintText: hint,
+          ),
+          maxLength: maxLenght,
+        ),
+      ],
     );
   }
 
@@ -186,6 +533,13 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
             seconds:
                 3), // Duration for which the SnackBar is visible (optional)
       ),
+    );
+  }
+
+  void _toPreviousPage() {
+    _pageController.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
     );
   }
 
@@ -305,7 +659,7 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
                           builder: (context) => SellerstoreScreen(
                                 isMine: true,
                                 images: [image as File, coverPhoto as File],
-                                storeName: _storeNametextEditingController.text,
+                                storeName: _itemDetailsController.text,
                                 itemDetailEntity: const ItemDetailEntity(),
                               )),
                     );
@@ -314,87 +668,6 @@ class _StoreSetupFormState extends State<StoreSetupForm> {
                   }
                 },
                 buttonText: "Go Live"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _cities(BuildContext context, Size size) {
-    return SizedBox(
-      height: size.height,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: double.infinity,
-            alignment: Alignment.center,
-            margin: EdgeInsets.symmetric(vertical: size.width * .05),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: size.height * .1,
-                ),
-                HeadingsWidet(
-                    h1: "Choose Cities You Are Selling ",
-                    h2: "You Can Choose From Multiple Categories Of the products to choose from the list",
-                    alignment: Alignment.center),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: size.width * .2),
-            child: MultiSelectDropDown(
-              suffixIcon: Icon(
-                Icons.arrow_downward,
-                color: AppColors.bgDarkTheme,
-              ),
-              optionsBackgroundColor: AppColors.bgVariantDarkTheme,
-              singleSelectItemStyle: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(color: Colors.black),
-              hint: 'Select Cities',
-              fieldBackgroundColor: AppColors.bgDarkTheme,
-              controller: _categoriestextEditingController,
-              onOptionSelected: (List<ValueItem> selectedOptions) {},
-              options: const <ValueItem>[
-                ValueItem(label: 'Islamabad', value: 'Islamabad'),
-                ValueItem(label: 'Karachi', value: 'Karachi'),
-                ValueItem(label: 'Lahore', value: 'Lahore'),
-                ValueItem(label: 'Peshawar', value: 'Peshawar'),
-                ValueItem(label: 'Multan', value: 'Multan'),
-                ValueItem(label: 'Others', value: 'Others'),
-              ],
-              selectionType: SelectionType.multi,
-              chipConfig: const ChipConfig(wrapType: WrapType.wrap),
-              dropdownHeight: 300,
-              optionTextStyle: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(color: Colors.black, fontWeight: FontWeight.bold),
-              selectedOptionIcon: Icon(
-                Icons.check_circle,
-                color: AppColors.iconsDarkTheme,
-              ),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.symmetric(horizontal: size.height * .01),
-            child: ElevatedButtonWidget(
-                bgColor: Colors.orangeAccent,
-                buttonSize: null,
-                function: () {
-                  if (_categoriestextEditingController
-                      .selectedOptions.isNotEmpty) {
-                    _toNextPage();
-                  } else {
-                    showMySnackBar(context, "Please provide Cities");
-                  }
-                },
-                buttonText: "Proceed"),
           ),
         ],
       ),

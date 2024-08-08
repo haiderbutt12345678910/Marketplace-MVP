@@ -1,6 +1,11 @@
 import 'dart:io';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AppStrings/authentication_strings.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/apptextformfeild.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/ScreenSizeUtils/screensize.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getcities_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getuser_bloc.dart';
@@ -26,9 +31,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _mobileNumberController;
   late TextEditingController _personalAddressController;
   late TextEditingController _dateOfBirthController;
+  late TextEditingController _emailController;
   File? _profileImage;
-  File? _cnicFrontImage;
-  File? _cnicBackImage;
   String? _selectedCity;
 
   final List<String> _cities = [
@@ -52,6 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         TextEditingController(text: userEntity.personalAddress);
     _dateOfBirthController = TextEditingController(text: userEntity.cityName);
     _selectedCity = userEntity.cityName;
+    _emailController = TextEditingController(text: userEntity.email);
   }
 
   @override
@@ -73,10 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (type == 'profile') {
           _profileImage = File(pickedFile.path);
         } else if (type == 'cnicFront') {
-          _cnicFrontImage = File(pickedFile.path);
-        } else if (type == 'cnicBack') {
-          _cnicBackImage = File(pickedFile.path);
-        }
+        } else if (type == 'cnicBack') {}
       });
     }
   }
@@ -123,6 +125,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(
                   height: 10,
                 ),
+                HeadingsWidet(
+                  h1: "Build Your Profile",
+                  alignment: Alignment.center,
+                  h2: "This information will let us know more about you",
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
                 GestureDetector(
                   onTap: () => _pickImage(ImageSource.gallery, 'profile'),
                   child: CircleAvatar(
@@ -140,148 +150,124 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(
                   height: 10,
                 ),
-                GestureDetector(
-                  onTap: () => _pickImage(ImageSource.gallery, 'cnicFront'),
-                  child: Container(
-                    height: 100,
-                    width: double.infinity,
-                    color: Colors.grey[200],
-                    child: _cnicFrontImage != null
-                        ? Image.file(_cnicFrontImage!, fit: BoxFit.cover)
-                        : const Center(
-                            child: Text('Tap to add CNIC Front Image'),
-                          ),
-                  ),
-                ),
+                _infoWidet(context, size),
                 const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () => _pickImage(ImageSource.gallery, 'cnicBack'),
-                  child: Container(
-                    height: 100,
-                    width: double.infinity,
-                    color: Colors.grey[200],
-                    child: _cnicBackImage != null
-                        ? Image.file(_cnicBackImage!, fit: BoxFit.cover)
-                        : const Center(
-                            child: Text('Tap to add CNIC Back Image'),
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    hintText: 'Enter your name',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _shippingAddressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Shipping Address',
-                    hintText: 'Enter your shipping address',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your shipping address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _mobileNumberController,
-                  decoration: const InputDecoration(
-                    labelText: 'Mobile Number',
-                    hintText: 'Enter your mobile number',
-                  ),
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your mobile number';
-                    }
-                    if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-                      return 'Please enter a valid 10-digit mobile number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _selectedCity,
-                  items: _cities.map((String city) {
-                    return DropdownMenuItem<String>(
-                      value: city,
-                      child: Text(city),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedCity = newValue;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'City Name',
-                    hintText: 'Select your city',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select your city';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _personalAddressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Personal Address',
-                    hintText: 'Enter your personal address',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your personal address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _dateOfBirthController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Date of Birth',
-                    hintText: 'Select your date of birth',
-                  ),
-                  onTap: () => _selectDate(context),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select your date of birth';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      submit(context);
-                    },
-                    child: const Text('Update'),
-                  ),
-                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _selcetCities(BuildContext context, Size size) {
+    var citiesList = BlocProvider.of<GetcitiesBloc>(context).getCitiesLocal();
+    List<String> list = [];
+    for (int i = 0; i < citiesList.length; i++) {
+      list.add(citiesList[i].cityName);
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(
+        horizontal: size.height * .01,
+        vertical: size.height * .04,
+      ),
+      child: CustomDropdown<String>(
+        hintText: 'Select Cities',
+        items: list,
+        decoration: CustomDropdownDecoration(
+          closedBorder: const Border(
+              top: BorderSide(color: Colors.black, width: 1.0),
+              left: BorderSide(color: Colors.black, width: 1.0),
+              bottom: BorderSide(color: Colors.black, width: 1.0),
+              right: BorderSide(color: Colors.black, width: 1.0)),
+          expandedBorder: const Border(
+              top: BorderSide(color: Colors.black, width: 1.0),
+              left: BorderSide(color: Colors.black, width: 1.0),
+              bottom: BorderSide(color: Colors.black, width: 1.0),
+              right: BorderSide(color: Colors.black, width: 1.0)),
+          closedBorderRadius: BorderRadius.zero,
+          expandedBorderRadius: BorderRadius.zero,
+          hintStyle: Theme.of(context).textTheme.titleLarge,
+        ),
+        onChanged: (value) {
+          // Handle dropdown value change
+        },
+      ),
+    );
+  }
+
+  Widget _infoWidet(BuildContext context, Size size) {
+    EdgeInsets textFormFeildSize = EdgeInsets.symmetric(
+      horizontal: size.height * .01,
+      vertical: size.height * .005,
+    );
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                margin: textFormFeildSize,
+                child: TextFormFeildWidget(
+                  idForFeild: "name",
+                  textEditingController: _nameController,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: size.width * .01,
+            ),
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                margin: textFormFeildSize,
+                child: TextFormFeildWidget(
+                  idForFeild: "phone",
+                  textEditingController: _mobileNumberController,
+                ),
+              ),
+            ),
+          ],
+        ),
+        Container(
+          width: double.infinity,
+          margin: textFormFeildSize,
+          child: TextFormFeildWidget(
+            idForFeild: "e",
+            textEditingController: _emailController,
+          ),
+        ),
+        _selcetCities(context, size),
+        Container(
+          width: double.infinity,
+          margin: textFormFeildSize,
+          child: TextFormFeildWidget(
+            idForFeild: "adress",
+            textEditingController: _shippingAddressController,
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          margin: textFormFeildSize,
+          child: TextFormFeildWidget(
+            idForFeild: "padress",
+            textEditingController: _personalAddressController,
+          ),
+        ),
+        SizedBox(
+          height: size.height * .01,
+        ),
+        ElevatedButtonWidget(
+          buttonSize: null,
+          function: () {},
+          buttonText: "Update",
+        ),
+      ],
     );
   }
 

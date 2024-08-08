@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/BlocStates/blocstates.dart';
+import 'package:flutter_application_ebay_ecom/AppCores/ConstStrings/AssetsStrings/assetsurl.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appelevatedbuttons.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/circularprogess.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/pageheadings.dart';
@@ -30,6 +31,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     ['79%', 'Ship On Time'],
     ['80%', 'Chat Response Rate']
   ];
+
+  bool loadFailed = false;
+
+  final _formKey = GlobalKey<FormState>();
+  final _bidAmountController = TextEditingController();
+  final _optionalMessageController = TextEditingController();
+  double minimumBidAmount = 10.0;
   @override
   void initState() {
     BlocProvider.of<GetsingleitemBloc>(context).getUser(widget.id);
@@ -97,7 +105,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget _prodctOverView(
       BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: size.width * .01),
+      padding: EdgeInsets.symmetric(
+          horizontal: size.width * .02, vertical: size.width * .01),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -141,14 +150,37 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: ElevatedButtonWidget(
                   bgColor: Colors.blue,
                   buttonSize: null,
-                  function: () {},
+                  function: () {
+                    BlocProvider.of<GetCartBloc>(context)
+                        .addToCart(itemdetail.id as String)
+                        .then((_) {
+                      if (BlocProvider.of<GetCartBloc>(context).addedState ==
+                          "S") {
+                        var snackBar = const SnackBar(
+                          duration: Duration(seconds: 2),
+                          content: Text("Added To Cart"),
+                          backgroundColor: Colors.green,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        var snackBar = const SnackBar(
+                          duration: Duration(seconds: 2),
+                          content: Text("Some thing Went Wrong"),
+                          backgroundColor: Colors.red,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    });
+                  },
                   buttonText: "Add to cart")),
           if (itemdetail.saleType == "auction")
             Expanded(
                 child: ElevatedButtonWidget(
                     bgColor: Colors.amber,
                     buttonSize: null,
-                    function: () {},
+                    function: () {
+                      openAlertDialog(context);
+                    },
                     buttonText: "Create Offer")),
           Expanded(
               child: ElevatedButtonWidget(
@@ -249,13 +281,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _productImages(
       BuildContext context, Size size, ItemDetailEntity itemDetailEntity) {
+    var itemdetail =
+        BlocProvider.of<GetsingleitemBloc>(context).getItemDetailsLocal();
     return Container(
       width: double.infinity,
       height: size.height * .4,
       decoration: BoxDecoration(
           image: DecorationImage(
-              image:
-                  NetworkImage(itemDetailEntity.itemImages![0].image as String),
+              onError: (e, s) {
+                setState(() {
+                  loadFailed = true;
+                });
+              },
+              image: NetworkImage(AppAssetsUrl.fallbackImageUrl),
               fit: BoxFit.cover)),
     );
   }
@@ -576,5 +614,67 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
       );
     });
+  }
+
+  Future<void> openAlertDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Create Offer',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _bidAmountController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Bid Amount'),
+                  validator: (value) {
+                    if (value == null || double.tryParse(value) == null) {
+                      return 'Please enter a valid bid amount';
+                    }
+                    if (double.parse(value) < minimumBidAmount) {
+                      return 'Minimum bid amount is $minimumBidAmount';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _optionalMessageController,
+                  decoration:
+                      const InputDecoration(labelText: 'Optional Message'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  // Handle offer creation with bid amount and optional message
+                  final bidAmount = double.parse(_bidAmountController.text);
+                  final optionalMessage = _optionalMessageController.text;
+                  // Do something with the bid amount and optional message
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Create Offer'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

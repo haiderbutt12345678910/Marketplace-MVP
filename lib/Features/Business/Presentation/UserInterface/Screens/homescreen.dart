@@ -66,7 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
             alignment: Alignment.center,
             width: double.infinity,
             height: size.height * .585,
-            child: const ProgressCircularIndicatorCustom());
+            child: const ProgressCircularIndicatorCustom(
+              bgColor: Colors.white,
+            ));
       } else if (state is Sucessfull) {
         return SizedBox(
           height: size.height * .585,

@@ -37,12 +37,11 @@ class _CartNotificationWidgetState extends State<CartNotificationWidget> {
 
       if (state is Loading) {
         return Container(
-          margin: const EdgeInsets.all(10),
-          height: 30,
-          width: 30,
+          margin: const EdgeInsets.all(3),
+          height: 40,
+          width: 40,
           child: const ProgressCircularIndicatorCustom(
-            bgColor: Colors.green,
-          ),
+              bgColor: Colors.greenAccent, barColor: Colors.orangeAccent),
         );
       }
       if (state is Sucessfull) {

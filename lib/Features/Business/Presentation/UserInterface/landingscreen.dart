@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ebay_ecom/AppCores/CoreWidgets/appbartitle.dart';
+import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/StateMangement/Blocs/getcities_bloc.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/CoreWidgets/FeaturesCoreWidgets/cartnotification.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/homescreen.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/myebayoverview.dart';
 import 'package:flutter_application_ebay_ecom/Features/Business/Presentation/UserInterface/Screens/sellingoverview.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -26,6 +28,14 @@ class LandingScreenState extends State<LandingScreen> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    BlocProvider.of<GetcitiesBloc>(context).getCities();
+
+    super.initState();
   }
 
   @override

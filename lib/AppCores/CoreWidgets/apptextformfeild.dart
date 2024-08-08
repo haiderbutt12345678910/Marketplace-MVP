@@ -92,6 +92,30 @@ class _TextFormFeildWidgetState extends State<TextFormFeildWidget> {
       _iconData = Icons.lock;
       _textInputType = TextInputType.visiblePassword;
       _validator = _passwordValidation;
+    } else if (widget.idForFeild == "name") {
+      _hint = "Enter First Name";
+      _label = "First Name";
+      _iconData = Icons.person;
+      _textInputType = TextInputType.text;
+      _validator = _emptyFeildValidation;
+    } else if (widget.idForFeild == "phone") {
+      _hint = "Enter Phone Number";
+      _label = "Mobile #";
+      _iconData = Icons.phone;
+      _textInputType = TextInputType.number;
+      _validator = _emptyFeildValidation;
+    } else if (widget.idForFeild == "padress") {
+      _hint = "Enter Permanent Adress";
+      _label = "Permanent Adress";
+      _iconData = Icons.home;
+      _textInputType = TextInputType.streetAddress;
+      _validator = _emptyFeildValidation;
+    } else if (widget.idForFeild == "adress") {
+      _hint = "Enter Shipping Adress";
+      _label = "Shipping Adress#";
+      _iconData = Icons.local_shipping;
+      _textInputType = TextInputType.streetAddress;
+      _validator = _emptyFeildValidation;
     }
 
     //for other feild setups
